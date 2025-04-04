@@ -96,7 +96,6 @@ class Stream
 	public function setProperty( string $key, string $value ): self
 	{
 		$key = strtoupper( $key );
-		$this->properties[ $key ] = $value;
 
 		if( $key === 'BANDWIDTH' )
 		{
@@ -109,6 +108,10 @@ class Stream
 		else if( $key === 'CODECS' )
 		{
 			$this->codecs = new CodecList( $value );
+		}
+		else
+		{
+			$this->properties[ $key ] = $value;
 		}
 
 		return $this;
