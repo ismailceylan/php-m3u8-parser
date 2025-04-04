@@ -7,6 +7,8 @@ namespace Iceylan\M3U8;
  */
 class MasterPlaylist extends Playlist
 {
+    public array $streams = [];
+
     /**
      * Checks if the given data contains the '#EXT-X-STREAM-INF:' tag.
      *
@@ -17,4 +19,25 @@ class MasterPlaylist extends Playlist
 	{
 		return strpos( $data, '#EXT-X-STREAM-INF:' ) !== false;
 	}
+
+    /**
+     * Parses a master playlist content.
+     *
+     * @param string $content The content of the master playlist.
+     * @return void
+     */
+    public function parse( string $content ): void
+    {
+        $lines = explode( "\n", trim( $content ));
+
+        // first one is magic bytes
+        array_shift( $lines );
+
+        for( $i = 0; $i < count( $lines ); $i ++ )
+        {
+            $stream = $this->streams[] = new Stream( $lines[ $i ]);
+            $stream->setUri( $lines[ $i + 1 ]);
+            $i++;
+        }
+    }
 }

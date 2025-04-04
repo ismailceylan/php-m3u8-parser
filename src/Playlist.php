@@ -10,7 +10,8 @@ use ReflectionClass;
 abstract class Playlist
 {
 	abstract function test( string $data ): bool;
-	
+	abstract function parse( string $content ): void;
+
 	/**
 	 * Load a playlist from a raw string content.
 	 * 
@@ -31,6 +32,8 @@ abstract class Playlist
 			$className = ( new ReflectionClass( $this ))->getShortName();
 			throw new \Exception( "M3U8 content that cannot be considered $className!" );
 		}
+
+		$this->parse( $content );
 	}
 
 	/**
