@@ -2,10 +2,12 @@
 
 namespace Iceylan\M3U8;
 
+use Iceylan\M3U8\Contracts\M3U8Serializable;
+
 /**
  * Represent a master playlist.
  */
-class MasterPlaylist extends Playlist
+class MasterPlaylist extends Playlist implements M3U8Serializable
 {
     public array $streams = [];
 
@@ -39,5 +41,22 @@ class MasterPlaylist extends Playlist
             $stream->setUri( $lines[ $i + 1 ]);
             $i++;
         }
+    }
+
+    /**
+     * Returns the content of the master playlist as a string.
+     *
+     * @return string
+     */
+    public function toM3U8(): string
+    {
+        return "#EXTM3U\n" .
+        implode(
+            "\n",
+            array_map(
+                fn( $stream ) => $stream->toM3U8() . "\n" . $stream->uri,
+                $this->streams
+            )
+        );
     }
 }
