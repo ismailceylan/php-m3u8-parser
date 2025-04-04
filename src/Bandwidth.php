@@ -113,12 +113,12 @@ class Bandwidth implements JsonSerializable, M3U8Serializable
 	/**
 	 * Converts the bandwidth value to a string in the M3U8 format.
 	 *
-	 * The M3U8 format is 'BITRATE=<value>'.
+	 * The M3U8 format is 'BANDWIDTH=<value>'.
 	 *
 	 * @return string The bandwidth value in the M3U8 format.
 	 */
 	public function toM3U8(): string
 	{
-		return 'BITRATE=' . $this->bps;
+		return 'BANDWIDTH=' . $this->bps;
 	}
 }
