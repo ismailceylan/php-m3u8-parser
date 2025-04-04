@@ -45,6 +45,13 @@ class Stream implements M3U8Serializable
 	public CodecList $codecs;
 
 	/**
+	 * The program ID of the stream.
+	 *
+	 * @var ProgramID
+	 */
+	public ProgramID $programID;
+	
+	/**
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
 	 * @param string $rawM3U8StreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
@@ -110,6 +117,10 @@ class Stream implements M3U8Serializable
 		else if( $key === 'CODECS' )
 		{
 			$this->codecs = new CodecList( $value );
+		}
+		else if( $key === 'PROGRAM-ID' )
+		{
+			$this->programID = new ProgramID( $value );
 		}
 		else
 		{
@@ -193,14 +204,19 @@ class Stream implements M3U8Serializable
 	{
 		$data = [];
 
-		if( $this->resolution )
+		if( $this->programID )
 		{
-			$data[] = $this->resolution->toM3U8();
+			$data[] = $this->programID->toM3U8();
 		}
 
 		if( $this->bandwidth )
 		{
 			$data[] = $this->bandwidth->toM3U8();
+		}
+
+		if( $this->resolution )
+		{
+			$data[] = $this->resolution->toM3U8();
 		}
 
 		if( $this->codecs )
