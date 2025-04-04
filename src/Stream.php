@@ -36,6 +36,13 @@ class Stream
 	public Resolution $resolution;
 
 	/**
+	 * The codecs of the stream.
+	 *
+	 * @var CodecList
+	 */
+	public CodecList $codecs;
+
+	/**
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
 	 * @param string $rawM3U8StreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
@@ -98,6 +105,10 @@ class Stream
 		else if( $key === 'RESOLUTION' )
 		{
 			$this->resolution = new Resolution( $value );
+		}
+		else if( $key === 'CODECS' )
+		{
+			$this->codecs = new CodecList( $value );
 		}
 
 		return $this;
