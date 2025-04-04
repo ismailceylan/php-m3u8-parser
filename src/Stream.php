@@ -22,6 +22,13 @@ class Stream
 	public ?string $uri = null;
 
 	/**
+	 * The bandwidth of the stream.
+	 *
+	 * @var Bandwidth
+	 */
+	public Bandwidth $bandwidth;
+
+	/**
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
 	 * @param string $rawM3U8StreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
@@ -74,7 +81,14 @@ class Stream
 	 */
 	public function setProperty( string $key, string $value ): self
 	{
-		$this->properties[ strtoupper( $key )] = $value;
+		$key = strtoupper( $key );
+		$this->properties[ $key ] = $value;
+
+		if( $key === 'BANDWIDTH' )
+		{
+			$this->bandwidth = new Bandwidth( $value );
+		}
+
 		return $this;
 	}
 
