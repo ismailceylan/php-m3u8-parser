@@ -29,6 +29,13 @@ class Stream
 	public Bandwidth $bandwidth;
 
 	/**
+	 * The resolution of the stream.
+	 *
+	 * @var Resolution
+	 */
+	public Resolution $resolution;
+
+	/**
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
 	 * @param string $rawM3U8StreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
@@ -87,6 +94,10 @@ class Stream
 		if( $key === 'BANDWIDTH' )
 		{
 			$this->bandwidth = new Bandwidth( $value );
+		}
+		else if( $key === 'RESOLUTION' )
+		{
+			$this->resolution = new Resolution( $value );
 		}
 
 		return $this;
