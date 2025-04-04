@@ -3,11 +3,12 @@
 namespace Iceylan\M3U8;
 
 use JsonSerializable;
+use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
  * Represents a list of codecs.
  */
-class CodecList implements JsonSerializable
+class CodecList implements JsonSerializable, M3U8Serializable
 {
 	/**
 	 * The list of codecs.
@@ -44,5 +45,16 @@ class CodecList implements JsonSerializable
 	public function jsonSerialize(): array
 	{
 		return $this->codecs;
+	}
+
+	/**
+	 * Converts the list of codecs to a string in the M3U8 format.
+	 *
+	 * @return string The codecs concatenated into a single string, wrapped
+	 * in the M3U8 CODECS attribute format.
+	 */
+	public function toM3U8(): string
+	{
+		return 'CODECS="' . $this->__toString() . '"';
 	}
 }

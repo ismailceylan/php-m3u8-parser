@@ -2,10 +2,12 @@
 
 namespace Iceylan\M3U8;
 
+use Iceylan\M3U8\Contracts\M3U8Serializable;
+
 /**
  * Represent a resolution.
  */
-class Resolution
+class Resolution implements M3U8Serializable
 {
 	/**
 	 * The width.
@@ -62,5 +64,16 @@ class Resolution
 	public function getPixels(): int
 	{
 		return $this->width * $this->height;
+	}
+
+	/**
+	 * Convert the resolution to the M3U8 format.
+	 * The M3U8 format is 'RESOLUTION=<width>x<height>'.
+	 *
+	 * @return string The resolution in the M3U8 format.
+	 */
+	public function toM3U8(): string
+	{
+		return 'RESOLUTION=' . $this->__toString();
 	}
 }

@@ -2,17 +2,19 @@
 
 namespace Iceylan\M3U8;
 
+use Iceylan\M3U8\Contracts\M3U8Serializable;
+
 /**
  * Represent a stream.
  */
-class Stream
+class Stream implements M3U8Serializable
 {
 	/**
 	 * The properties of the stream.
 	 * 
 	 * @var array
 	 */
-	public array $properties = [];
+	public array $nonStandardProps = [];
 
 	/**
 	 * The URI of the stream.
@@ -111,7 +113,7 @@ class Stream
 		}
 		else
 		{
-			$this->properties[ $key ] = $value;
+			$this->nonStandardProps[ $key ] = $value;
 		}
 
 		return $this;
@@ -178,5 +180,34 @@ class Stream
 	private function parsePair( string $pair ): array
 	{
 		return explode( '=', $pair );
+	}
+
+	/**
+	 * Converts the stream to a string in the M3U8 format.
+	 *
+	 * The M3U8 format is '#EXT-X-STREAM-INF:<program-id>,<resolution>,<bandwidth>,<codecs>'.
+	 *
+	 * @return string The stream in the M3U8 format.
+	 */
+	public function toM3U8(): string
+	{
+		$data = [];
+
+		if( $this->resolution )
+		{
+			$data[] = $this->resolution->toM3U8();
+		}
+
+		if( $this->bandwidth )
+		{
+			$data[] = $this->bandwidth->toM3U8();
+		}
+
+		if( $this->codecs )
+		{
+			$data[] = $this->codecs->toM3U8();
+		}
+
+		return '#EXT-X-STREAM-INF:' . implode( ',', $data );
 	}
 }

@@ -2,10 +2,13 @@
 
 namespace Iceylan\M3U8;
 
+use JsonSerializable;
+use Iceylan\M3U8\Contracts\M3U8Serializable;
+
 /**
  * Represents a bandwidth value.
  */
-class Bandwidth
+class Bandwidth implements JsonSerializable, M3U8Serializable
 {
 	/**
 	 * The bandwidth value in bits per second.
@@ -34,6 +37,16 @@ class Bandwidth
 		[ $size, $unit ] = $this->toBytes();
 
 		return round( $size, 2 ) . ' ' . $unit . "ps";
+	}
+
+	/**
+	 * @inheritDoc
+	 * 
+	 * Serializes the bandwidth value as an integer.
+	 */
+	public function jsonSerialize(): int
+	{
+		return $this->bps;
 	}
 
 	/**
@@ -95,5 +108,17 @@ class Bandwidth
 			: [ 'B', 'KB', 'MB', 'GB', 'TB' ];
 
 		return $this->convert( $units, 1024 );
+	}
+
+	/**
+	 * Converts the bandwidth value to a string in the M3U8 format.
+	 *
+	 * The M3U8 format is 'BITRATE=<value>'.
+	 *
+	 * @return string The bandwidth value in the M3U8 format.
+	 */
+	public function toM3U8(): string
+	{
+		return 'BITRATE=' . $this->bps;
 	}
 }
