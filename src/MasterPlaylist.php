@@ -9,6 +9,11 @@ use Iceylan\M3U8\Contracts\M3U8Serializable;
  */
 class MasterPlaylist extends Playlist implements M3U8Serializable
 {
+    /**
+     * The streams of the master playlist.
+     *
+     * @var array
+     */
     public array $streams = [];
 
     /**
