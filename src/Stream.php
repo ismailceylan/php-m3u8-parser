@@ -26,28 +26,28 @@ class Stream implements M3U8Serializable
 	/**
 	 * The bandwidth of the stream.
 	 *
-	 * @var Bandwidth
+	 * @var Bandwidth|null
 	 */
 	public ?Bandwidth $bandwidth = null;
 
 	/**
 	 * The resolution of the stream.
 	 *
-	 * @var Resolution
+	 * @var Resolution|null
 	 */
 	public ?Resolution $resolution = null;
 
 	/**
 	 * The codecs of the stream.
 	 *
-	 * @var CodecList
+	 * @var CodecList|null
 	 */
 	public ?CodecList $codecs = null;
 
 	/**
 	 * The program ID of the stream.
 	 *
-	 * @var ProgramID
+	 * @var ProgramID|null
 	 */
 	public ?ProgramID $programID = null;
 	
