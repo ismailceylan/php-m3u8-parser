@@ -42,9 +42,22 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
 
         for( $i = 0; $i < count( $lines ); $i ++ )
         {
-            $stream = $this->streams[] = new Stream( $lines[ $i ]);
-            $stream->setUri( $lines[ $i + 1 ]);
-            $i++;
+            $line = trim( $lines[ $i ]);
+
+            // skip comments or blank lines etc.
+            if( substr( $line, 0, 4 ) !== '#EXT' )
+            {
+                continue;
+            }
+
+            // handle streams
+            if( substr( $line, 0, 17 ) === '#EXT-X-STREAM-INF' )
+            {
+                $stream = $this->streams[] = new Stream( $line );
+                $stream->setUri( $lines[ $i + 1 ]);
+                $i++;
+            }
+
         }
     }
 
