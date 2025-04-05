@@ -31,6 +31,13 @@ class Stream implements M3U8Serializable
 	public ?Bandwidth $bandwidth = null;
 
 	/**
+	 * The average bandwidth of the stream.
+	 *
+	 * @var Bandwidth|null
+	 */
+	public ?Bandwidth $averageBandwidth = null;
+
+	/**
 	 * The resolution of the stream.
 	 *
 	 * @var Resolution|null
@@ -136,6 +143,18 @@ class Stream implements M3U8Serializable
 	}
 
 	/**
+	 * Sets the average bandwidth of the stream.
+	 *
+	 * @param int $averageBandwidth The average bandwidth value in bits per second.
+	 * @return self Returns the instance of the Stream class.
+	 */
+	public function setAverageBandwidth( int $averageBandwidth ): self
+	{
+		$this->averageBandwidth = new Bandwidth( $averageBandwidth );
+		return $this;
+	}
+
+	/**
 	 * Sets the codecs of the stream.
 	 *
 	 * @param string ...$codecs The codecs to set. The codecs should be given as strings
@@ -185,6 +204,10 @@ class Stream implements M3U8Serializable
 		if( $key === 'BANDWIDTH' )
 		{
 			$this->bandwidth = new Bandwidth( $value );
+		}
+		else if( $key === 'AVERAGE-BANDWIDTH' )
+		{
+			$this->averageBandwidth = new Bandwidth( $value );
 		}
 		else if( $key === 'RESOLUTION' )
 		{
@@ -292,6 +315,11 @@ class Stream implements M3U8Serializable
 		if( $this->bandwidth )
 		{
 			$data[] = $this->bandwidth->toM3U8();
+		}
+
+		if( $this->averageBandwidth )
+		{
+			$data[] = $this->averageBandwidth->toM3U8();
 		}
 
 		if( $this->frameRate )
