@@ -11,20 +11,12 @@ use Iceylan\M3U8\Contracts\M3U8Serializable;
 class CodecList implements JsonSerializable, M3U8Serializable
 {
 	/**
-	 * The list of codecs.
-	 *
-	 * @var array
-	 */
-	public array $codecs = [];
-
-	/**
 	 * Construct a CodecList from a raw string.
 	 *
 	 * @param string $codecString The raw string to parse.
 	 */
-	public function __construct( string $codecString )
+	public function __construct( public array $codecs )
 	{
-		$this->codecs = explode( '|', $codecString );
 	}
 
 	/**

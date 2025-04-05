@@ -68,13 +68,13 @@ class Stream implements M3U8Serializable
 	/**
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
-	 * @param string $rawM3U8StreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
+	 * @param string $rawStreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
 	 */
-	public function __construct( string $rawM3U8StreamSyntax = '' )
+	public function __construct( string $rawStreamSyntax = '' )
 	{
-		if( $rawM3U8StreamSyntax )
+		if( $rawStreamSyntax )
 		{
-			$this->parseXStreamInf( $rawM3U8StreamSyntax );
+			$this->parseRawSyntax( $rawStreamSyntax );
 		}
 	}
 
@@ -82,24 +82,46 @@ class Stream implements M3U8Serializable
 	 * Parses the given M3U8 EXT-X-STREAM-INF syntax and
 	 * sets the properties of the stream instance.
 	 *
-	 * @param string $rawM3U8StreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
+	 * @param string $rawStreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
 	 * @return self Returns the instance of the Stream class.
 	 * @throws \Exception If the stream syntax does not start with magic bytes.
 	 */
-	public function parseXStreamInf( string $rawM3U8StreamSyntax ): self
+	public function parseRawSyntax( string $rawStreamSyntax ): self
 	{
-		if( ! $this->hasMagicBytes( $rawM3U8StreamSyntax ))
-		{
-			throw new \Exception( "Stream syntax does not start with magic bytes!" );
-		}
+		$tag = new AttributedTag( $rawStreamSyntax );
 
-		$data = $this->getDataSegment( $rawM3U8StreamSyntax );
-		$normalized = $this->normalizeQuotes( $data );
-		$pairs = $this->getPairs( $normalized );
-
-		foreach( $pairs as $pair )
+		foreach( $tag->attributes as $key => $value )
 		{
-			$this->setProperty( ...$this->parsePair( $pair ));
+			$key = strtoupper( $key );
+
+			if( $key === 'BANDWIDTH' )
+			{
+				$this->bandwidth = new Bandwidth( $value );
+			}
+			else if( $key === 'AVERAGE-BANDWIDTH' )
+			{
+				$this->averageBandwidth = new Bandwidth( $value );
+			}
+			else if( $key === 'RESOLUTION' )
+			{
+				$this->resolution = new Resolution( $value );
+			}
+			else if( $key === 'CODECS' )
+			{
+				$this->codecs = new CodecList( $value );
+			}
+			else if( $key === 'PROGRAM-ID' )
+			{
+				$this->programID = new ProgramID( $value );
+			}
+			else if( $key === 'FRAME-RATE' )
+			{
+				$this->frameRate = new FrameRate( $value );
+			}
+			else
+			{
+				$this->nonStandardProps[ $key ] = $value;
+			}
 		}
 
 		return $this;
@@ -162,7 +184,7 @@ class Stream implements M3U8Serializable
 	 */
 	public function setCodecs( ...$codecs ): self
 	{
-		$this->codecs = new CodecList( implode( '|', $codecs ));
+		$this->codecs = new CodecList( $codecs );
 		return $this;
 	}
 
@@ -188,112 +210,6 @@ class Stream implements M3U8Serializable
 	{
 		$this->frameRate = new FrameRate( $frameRate );
 		return $this;
-	}
-
-	/**
-	 * Sets a property for the stream.
-	 * 
-	 * @param string $key The key of the property to set. The key will be converted to uppercase.
-	 * @param string $value The value of the property to set.
-	 * @return self Returns the instance of the Stream class.
-	 */
-	public function setProperty( string $key, string $value ): self
-	{
-		$key = strtoupper( $key );
-
-		if( $key === 'BANDWIDTH' )
-		{
-			$this->bandwidth = new Bandwidth( $value );
-		}
-		else if( $key === 'AVERAGE-BANDWIDTH' )
-		{
-			$this->averageBandwidth = new Bandwidth( $value );
-		}
-		else if( $key === 'RESOLUTION' )
-		{
-			$this->resolution = new Resolution( $value );
-		}
-		else if( $key === 'CODECS' )
-		{
-			$this->codecs = new CodecList( $value );
-		}
-		else if( $key === 'PROGRAM-ID' )
-		{
-			$this->programID = new ProgramID( $value );
-		}
-		else if( $key === 'FRAME-RATE' )
-		{
-			$this->frameRate = new FrameRate( $value );
-		}
-		else
-		{
-			$this->nonStandardProps[ $key ] = $value;
-		}
-
-		return $this;
-	}
-
-	/**
-	 * Checks if the given M3U8 stream syntax starts with the magic bytes '#EXT-X-STREAM-INF:'.
-	 * 
-	 * @param string $rawSyntax The M3U8 stream syntax to check.
-	 * @return bool True if the syntax starts with the magic bytes, false otherwise.
-	 */
-	private function hasMagicBytes( string $rawSyntax ): bool
-	{
-		return strpos( $rawSyntax, '#EXT-X-STREAM-INF:' ) !== false;
-	}
-
-	/**
-	 * Returns the data segment of the given M3U8 stream syntax.
-	 * 
-	 * @param string $rawSyntax The M3U8 stream syntax to get the data segment from.
-	 * @return string The data segment of the given M3U8 stream syntax.
-	 */
-	private function getDataSegment( string $rawSyntax ): string
-	{
-		return explode( ':', $rawSyntax )[ 1 ];
-	}
-
-	/**
-	 * Replace commas with pipe characters inside double quotes in the given data.
-	 * This is necessary because some M3U8 files contain commas inside double quotes
-	 * which makes the data impossible to explode.
-	 * 
-	 * @param string $data The data to normalize.
-	 * @return string The normalized data.
-	 */
-	private function normalizeQuotes( string $data ): string
-	{
-		return preg_replace_callback(
-			'/"(.*)"/',
-			fn( $m ) => str_replace( ',', '|', $m[ 1 ]),
-			$data
-		);
-	}
-
-	/**
-	 * Explodes the given data into an array of key-value pairs.
-	 *
-	 * @param string $data The data to explode.
-	 * @return array The exploded array of key-value pairs.
-	 */
-	private function getPairs( string $data ): array
-	{
-		return explode( ',', $data );
-	}
-
-	/**
-	 * Explodes the given key-value pair into an array of two elements.
-	 *
-	 * The first element is the key and the second element is the value.
-	 *
-	 * @param string $pair The key-value pair to explode.
-	 * @return array The exploded array of key-value pair.
-	 */
-	private function parsePair( string $pair ): array
-	{
-		return explode( '=', $pair );
 	}
 
 	/**
