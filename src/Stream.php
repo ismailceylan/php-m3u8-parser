@@ -104,6 +104,55 @@ class Stream implements M3U8Serializable
 	}
 
 	/**
+	 * Sets the resolution of the stream.
+	 *
+	 * @param string|int $width The width of the resolution.
+	 * @param string|int $height The height of the resolution.
+	 * @return self Returns the instance of the Stream class.
+	 */
+	public function setResolution( string|int $width, string|int $height ): self
+	{
+		$this->resolution = new Resolution( "{$width}x{$height}" );
+		return $this;
+	}
+
+	/**
+	 * Sets the bandwidth of the stream.
+	 *
+	 * @param int $bandwidth The bandwidth value in bits per second.
+	 * @return self Returns the instance of the Stream class.
+	 */
+	public function setBandwidth( int $bandwidth ): self
+	{
+		$this->bandwidth = new Bandwidth( $bandwidth );
+		return $this;
+	}
+
+	/**
+	 * Sets the codecs of the stream.
+	 *
+	 * @param string ...$codecs The codecs to set. The codecs should be given as strings
+	 * @return self Returns the instance of the Stream class.
+	 */
+	public function setCodecs( ...$codecs ): self
+	{
+		$this->codecs = new CodecList( implode( '|', $codecs ));
+		return $this;
+	}
+
+	/**
+	 * Sets the program ID of the stream.
+	 *
+	 * @param string $programID The program ID to set for the stream.
+	 * @return self Returns the instance of the Stream class.
+	 */
+	public function setProgramID( string $programID ): self
+	{
+		$this->programID = new ProgramID( $programID );
+		return $this;
+	}
+
+	/**
 	 * Sets a property for the stream.
 	 * 
 	 * @param string $key The key of the property to set. The key will be converted to uppercase.
