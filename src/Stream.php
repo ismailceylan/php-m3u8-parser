@@ -52,6 +52,13 @@ class Stream implements M3U8Serializable
 	public ?ProgramID $programID = null;
 	
 	/**
+	 * The frame rate of the stream.
+	 *
+	 * @var FrameRate|null
+	 */
+	public ?FrameRate $frameRate = null;
+
+	/**
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
 	 * @param string $rawM3U8StreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
@@ -153,6 +160,18 @@ class Stream implements M3U8Serializable
 	}
 
 	/**
+	 * Sets the frame rate of the stream.
+	 *
+	 * @param int|float|string $frameRate The frame rate to set for the stream.
+	 * @return self Returns the instance of the Stream class.
+	 */
+	public function setFrameRate( int|float|string $frameRate ): self
+	{
+		$this->frameRate = new FrameRate( $frameRate );
+		return $this;
+	}
+
+	/**
 	 * Sets a property for the stream.
 	 * 
 	 * @param string $key The key of the property to set. The key will be converted to uppercase.
@@ -178,6 +197,10 @@ class Stream implements M3U8Serializable
 		else if( $key === 'PROGRAM-ID' )
 		{
 			$this->programID = new ProgramID( $value );
+		}
+		else if( $key === 'FRAME-RATE' )
+		{
+			$this->frameRate = new FrameRate( $value );
 		}
 		else
 		{
@@ -269,6 +292,11 @@ class Stream implements M3U8Serializable
 		if( $this->bandwidth )
 		{
 			$data[] = $this->bandwidth->toM3U8();
+		}
+
+		if( $this->frameRate )
+		{
+			$data[] = $this->frameRate->toM3U8();
 		}
 
 		if( $this->resolution )
