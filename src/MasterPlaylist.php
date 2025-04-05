@@ -61,6 +61,24 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
     }
 
     /**
+     * Merges the given master playlist with the current one.
+     *
+     * It adds all the streams from the given master playlist to the current one.
+     *
+     * @param MasterPlaylist ...$playlist The master playlist to be merged.
+     * @return self
+     */
+    public function merge( MasterPlaylist ...$playlist ): self
+    {
+        foreach( $playlist as $list )
+        {
+            $this->streams = array_merge( $this->streams, $list->streams );
+        }
+
+        return $this;
+    }
+
+    /**
      * Returns the content of the master playlist as a string.
      *
      * @return string
