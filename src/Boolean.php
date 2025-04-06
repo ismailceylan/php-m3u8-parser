@@ -18,14 +18,22 @@ class Boolean implements M3U8Serializable, JsonSerializable
 	public ?bool $value = null;
 
 	/**
+	 * The name of the boolean value.
+	 *
+	 * @var string|null
+	 */
+	public ?string $key = null;
+
+	/**
 	 * Initializes a Boolean object with the given value.
 	 *
 	 * @param string|bool $value The value to initialize the object with. 
 	 *                           If a string is provided, it will be converted 
 	 *                           to lowercase. The value can be 'yes', 'no', 
 	 *                           true, or false. Other values will result in null.
+	 * @param ?string $name The name of the boolean value.
 	 */
-	public function __construct( string|bool $value )
+	public function __construct( string|bool $value, ?string $key )
 	{
 		if( is_string( $value ))
 		{
@@ -41,6 +49,7 @@ class Boolean implements M3U8Serializable, JsonSerializable
 		];
 
 		$this->value = $map[ $value ] ?? null;
+		$this->key = $key;
 	}
 
 	/**
@@ -53,7 +62,7 @@ class Boolean implements M3U8Serializable, JsonSerializable
 	 */
 	public function toM3U8(): string
 	{
-		return 'DEFAULT=' . $this->value? 'YES' : 'NO';
+		return "$this->key=" . ( $this->value? 'YES' : 'NO' );
 	}
 
 	/**

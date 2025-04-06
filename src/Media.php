@@ -57,11 +57,11 @@ class Media
 
 			if( $key === 'DEFAULT' )
 			{
-				$this->default = new Boolean( $value );
+				$this->default = new Boolean( $value, $key );
 			}
 			else if( $key === 'AUTOSELECT' )
 			{
-				$this->autoSelect = new Boolean( $value );
+				$this->autoSelect = new Boolean( $value, $key );
 			}
 			else if( $key === 'NAME' )
 			{
