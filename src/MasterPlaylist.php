@@ -17,6 +17,13 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
     public array $streams = [];
 
     /**
+     * The medias of the master playlist.
+     *
+     * @var array
+     */
+    public array $medias = [];
+
+    /**
      * Checks if the given data contains the '#EXT-X-STREAM-INF:' tag.
      *
      * @param string $data The data to be checked.
@@ -44,20 +51,23 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
         {
             $line = trim( $lines[ $i ]);
 
-            // skip comments or blank lines etc.
-            if( substr( $line, 0, 4 ) !== '#EXT' )
-            {
-                continue;
-            }
-
             // handle streams
-            if( substr( $line, 0, 17 ) === '#EXT-X-STREAM-INF' )
+            if( str_starts_with( $line, '#EXT-X-STREAM-INF' ))
             {
                 $stream = $this->streams[] = new Stream( $line );
                 $stream->setUri( $lines[ $i + 1 ]);
                 $i++;
             }
-
+            // handle media definitions
+            else if( str_starts_with( $line, '#EXT-X-MEDIA' ))
+            {
+                $this->medias[] = new Media( $line );
+            }
+            // skip comments or blank lines etc.
+            else
+            {
+                // continue;
+            }
         }
     }
 

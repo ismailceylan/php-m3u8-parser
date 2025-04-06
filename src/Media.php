@@ -1,0 +1,61 @@
+<?php
+
+namespace Iceylan\M3U8;
+
+/**
+ * Represents a media in a master playlist.
+ */
+class Media
+{
+	/**
+	 * The default attribute of the media.
+	 *
+	 * @var Boolean|null
+	 */
+	public ?Boolean $default = null;
+
+	/**
+	 * The autoSelect attribute of the media.
+	 *
+	 * @var Boolean|null
+	 */
+	public ?Boolean $autoSelect = null;
+
+	/**
+	 * Constructs a Media object from a raw M3U8 media syntax.
+	 *
+	 * @param string $rawMediaSyntax The raw M3U8 EXT-X-MEDIA syntax.
+	 */
+	public function __construct( string $rawMediaSyntax = '' )
+	{
+		if( $rawMediaSyntax )
+		{
+			$this->parseRawSyntax( $rawMediaSyntax );
+		}
+	}
+
+	/**
+	 * Parses a raw M3U8 EXT-X-MEDIA syntax and sets the properties of the Media instance.
+	 *
+	 * @param string $rawMediaSyntax The raw M3U8 EXT-X-MEDIA syntax.
+	 * @return void
+	 */
+	public function parseRawSyntax( string $rawMediaSyntax ): void
+	{
+		$tag = new AttributedTag( $rawMediaSyntax );
+
+		foreach( $tag->attributes as $key => $value )
+		{
+			$key = strtoupper( $key );
+
+			if( $key === 'DEFAULT' )
+			{
+				$this->default = new Boolean( $value );
+			}
+			else if( $key === 'AUTOSELECT' )
+			{
+				$this->autoSelect = new Boolean( $value );
+			}
+		}
+	}
+}
