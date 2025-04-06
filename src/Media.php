@@ -38,6 +38,13 @@ class Media implements M3U8Serializable
 	public ?Language $language = null;
 
 	/**
+	 * The type attribute of the media.
+	 *
+	 * @var MediaType|null
+	 */
+	public ?MediaType $type = null;
+
+	/**
 	 * Constructs a Media object from a raw M3U8 media syntax.
 	 *
 	 * @param string $rawMediaSyntax The raw M3U8 EXT-X-MEDIA syntax.
@@ -80,6 +87,10 @@ class Media implements M3U8Serializable
 			{
 				$this->language = new Language( $value );
 			}
+			else if( $key === 'TYPE' )
+			{
+				$this->type = new MediaType( $value );
+			}
 		}
 	}
 
@@ -92,14 +103,9 @@ class Media implements M3U8Serializable
 	{
 		$data = [];
 
-		if( $this->default )
+		if( $this->type )
 		{
-			$data[] = $this->default->toM3U8();
-		}
-
-		if( $this->autoSelect )
-		{
-			$data[] = $this->autoSelect->toM3U8();
+			$data[] = $this->type->toM3U8();
 		}
 
 		if( $this->name )
@@ -110,6 +116,16 @@ class Media implements M3U8Serializable
 		if( $this->language )
 		{
 			$data[] = $this->language->toM3U8();
+		}
+
+		if( $this->default )
+		{
+			$data[] = $this->default->toM3U8();
+		}
+
+		if( $this->autoSelect )
+		{
+			$data[] = $this->autoSelect->toM3U8();
 		}
 
 		return '#EXT-X-MEDIA:' . implode( ',', $data );
