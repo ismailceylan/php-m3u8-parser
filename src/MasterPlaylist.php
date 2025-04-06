@@ -115,6 +115,13 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
                 fn( $stream ) => $stream->toM3U8() . "\n" . $stream->uri,
                 $this->streams
             )
+        ) . "\n\n" .
+        implode(
+            "\n",
+            array_map(
+                fn( $media ) => $media->toM3U8(),
+                $this->medias
+            )
         );
     }
 }

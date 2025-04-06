@@ -2,10 +2,12 @@
 
 namespace Iceylan\M3U8;
 
+use Iceylan\M3U8\Contracts\M3U8Serializable;
+
 /**
  * Represents a media in a master playlist.
  */
-class Media
+class Media implements M3U8Serializable
 {
 	/**
 	 * The default attribute of the media.
@@ -68,5 +70,32 @@ class Media
 				$this->name = new Name( $value );
 			}
 		}
+	}
+
+	/**
+	 * Returns the content of the media as a M3U8 string.
+	 *
+	 * @return string
+	 */
+	public function toM3U8(): string
+	{
+		$data = [];
+
+		if( $this->default )
+		{
+			$data[] = $this->default->toM3U8();
+		}
+
+		if( $this->autoSelect )
+		{
+			$data[] = $this->autoSelect->toM3U8();
+		}
+
+		if( $this->name )
+		{
+			$data[] = $this->name->toM3U8();
+		}
+
+		return '#EXT-X-MEDIA:' . implode( ',', $data );
 	}
 }
