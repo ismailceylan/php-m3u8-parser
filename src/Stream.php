@@ -84,7 +84,6 @@ class Stream implements M3U8Serializable
 	 *
 	 * @param string $rawStreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
 	 * @return self Returns the instance of the Stream class.
-	 * @throws \Exception If the stream syntax does not start with magic bytes.
 	 */
 	public function parseRawSyntax( string $rawStreamSyntax ): self
 	{
