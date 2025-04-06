@@ -77,9 +77,21 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
      * @param Stream $stream The stream to be pushed.
      * @return self
      */
-    public function push( Stream $stream ): self
+    public function pushStream( Stream $stream ): self
     {
         $this->streams[] = $stream;
+        return $this;
+    }
+
+    /**
+     * Pushes a media into the master playlist.
+     *
+     * @param Media $media The media to be pushed.
+     * @return self
+     */
+    public function pushMedia( Media $media ): self
+    {
+        $this->medias[] = $media;
         return $this;
     }
 
