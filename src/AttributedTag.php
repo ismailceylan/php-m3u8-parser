@@ -68,7 +68,7 @@ class AttributedTag
 	private function escapeCommasInsideQuotes( string $data ): string
 	{
 		return preg_replace_callback(
-			'/"(.*)"/',
+			'/"(.*?)"/',
 			fn( $m ) => str_replace( ',', '|', $m[ 1 ]),
 			$data
 		);
