@@ -22,6 +22,13 @@ class Media
 	public ?Boolean $autoSelect = null;
 
 	/**
+	 * The forced attribute of the media.
+	 *
+	 * @var Name|null
+	 */
+	public ?Name $name = null;
+	
+	/**
 	 * Constructs a Media object from a raw M3U8 media syntax.
 	 *
 	 * @param string $rawMediaSyntax The raw M3U8 EXT-X-MEDIA syntax.
@@ -55,6 +62,10 @@ class Media
 			else if( $key === 'AUTOSELECT' )
 			{
 				$this->autoSelect = new Boolean( $value );
+			}
+			else if( $key === 'NAME' )
+			{
+				$this->name = new Name( $value );
 			}
 		}
 	}
