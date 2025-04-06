@@ -58,6 +58,66 @@ class Media implements M3U8Serializable
 	}
 
 	/**
+	 * Sets the default attribute of the media.
+	 *
+	 * @param string|bool $value The value of the default attribute.
+	 * @return self
+	 */
+	public function setDefault( string|bool $value ): self
+	{
+		$this->default = new Boolean( $value, 'DEFAULT' );
+		return $this;
+	}
+
+	/**
+	 * Sets the AUTOSELECT attribute of the media.
+	 *
+	 * @param string|bool $value The value of the AUTOSELECT attribute.
+	 * @return self
+	 */
+	public function setAutoSelect( string|bool $value ): self
+	{
+		$this->autoSelect = new Boolean( $value, 'AUTOSELECT' );
+		return $this;
+	}
+
+	/**
+	 * Sets the NAME attribute of the media.
+	 *
+	 * @param string $value The value of the NAME attribute.
+	 * @return self
+	 */
+	public function setName( string $value ): self
+	{
+		$this->name = new Name( $value );
+		return $this;
+	}
+
+	/**
+	 * Sets the LANGUAGE attribute of the media.
+	 *
+	 * @param string $value The value of the LANGUAGE attribute.
+	 * @return self
+	 */
+	public function setLanguage( string $value ): self
+	{
+		$this->language = new Language( $value );
+		return $this;
+	}
+
+	/**
+	 * Sets the TYPE attribute of the media.
+	 *
+	 * @param string $value The value of the TYPE attribute.
+	 * @return self
+	 */
+	public function setType( string $value ): self
+	{
+		$this->type = new MediaType( $value );
+		return $this;
+	}
+
+	/**
 	 * Parses a raw M3U8 EXT-X-MEDIA syntax and sets the properties of the Media instance.
 	 *
 	 * @param string $rawMediaSyntax The raw M3U8 EXT-X-MEDIA syntax.
