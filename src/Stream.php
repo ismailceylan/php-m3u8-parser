@@ -95,11 +95,11 @@ class Stream implements M3U8Serializable
 
 			if( $key === 'BANDWIDTH' )
 			{
-				$this->bandwidth = new Bandwidth( $value );
+				$this->setBandwidth( $value );
 			}
 			else if( $key === 'AVERAGE-BANDWIDTH' )
 			{
-				$this->averageBandwidth = new Bandwidth( $value );
+				$this->setAverageBandwidth( $value );
 			}
 			else if( $key === 'RESOLUTION' )
 			{
@@ -107,15 +107,15 @@ class Stream implements M3U8Serializable
 			}
 			else if( $key === 'CODECS' )
 			{
-				$this->codecs = new CodecList( $value );
+				$this->setCodecs( ...$value );
 			}
 			else if( $key === 'PROGRAM-ID' )
 			{
-				$this->programID = new ProgramID( $value );
+				$this->setProgramID( $value );
 			}
 			else if( $key === 'FRAME-RATE' )
 			{
-				$this->frameRate = new FrameRate( $value );
+				$this->setFrameRate( $value );
 			}
 			else
 			{

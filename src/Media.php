@@ -152,27 +152,27 @@ class Media implements M3U8Serializable
 
 			if( $key === 'DEFAULT' )
 			{
-				$this->default = new Boolean( $value, $key );
+				$this->setDefault( $value );
 			}
 			else if( $key === 'AUTOSELECT' )
 			{
-				$this->autoSelect = new Boolean( $value, $key );
+				$this->setAutoSelect( $value );
 			}
 			else if( $key === 'NAME' )
 			{
-				$this->name = new Name( $value );
+				$this->setName( $value );
 			}
 			else if( $key === 'LANGUAGE' )
 			{
-				$this->language = new Language( $value );
+				$this->setLanguage( $value );
 			}
 			else if( $key === 'TYPE' )
 			{
-				$this->type = new MediaType( $value );
+				$this->setType( $value );
 			}
 			else if( $key === 'GROUP-ID' )
 			{
-				$this->groupId = new GroupId( $value );
+				$this->setGroupId( $value );
 			}
 		}
 	}
