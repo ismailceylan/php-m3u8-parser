@@ -59,6 +59,13 @@ class Media implements M3U8Serializable
 	public ?GroupId $groupId = null;
 
 	/**
+	 * The URI attribute of the media.
+	 *
+	 * @var Uri|null
+	 */
+	public ?Uri $uri = null;
+
+	/**
 	 * Constructs a Media object from a raw M3U8 media syntax.
 	 *
 	 * @param string $rawMediaSyntax The raw M3U8 EXT-X-MEDIA syntax.
@@ -143,6 +150,18 @@ class Media implements M3U8Serializable
 		return $this;
 	}
 
+    /**
+     * Sets the URI attribute of the media.
+     *
+     * @param string $value The URI to set for the media.
+     * @return self Returns the instance of the Media class.
+     */
+	public function setUri( string $value ): self
+	{
+		$this->uri = new Uri( $value );
+		return $this;
+	}
+
 	/**
 	 * Parses a raw M3U8 EXT-X-MEDIA syntax and sets the properties of the Media instance.
 	 *
@@ -180,6 +199,10 @@ class Media implements M3U8Serializable
 			else if( $key === 'GROUP-ID' )
 			{
 				$this->setGroupId( $value );
+			}
+			else if( $key === 'URI' )
+			{
+				$this->setUri( $value );
 			}
 			else
 			{
@@ -225,6 +248,11 @@ class Media implements M3U8Serializable
 		if( $this->groupId )
 		{
 			$data[] = $this->groupId->toM3U8();
+		}
+
+		if( $this->uri )
+		{
+			$data[] = $this->uri->toM3U8();
 		}
 
 		return '#EXT-X-MEDIA:' . implode( ',', $data );
