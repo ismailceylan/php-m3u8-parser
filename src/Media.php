@@ -45,6 +45,13 @@ class Media implements M3U8Serializable
 	public ?MediaType $type = null;
 
 	/**
+	 * The group-ID attribute of the media.
+	 *
+	 * @var GroupId|null
+	 */
+	public ?GroupId $groupId = null;
+
+	/**
 	 * Constructs a Media object from a raw M3U8 media syntax.
 	 *
 	 * @param string $rawMediaSyntax The raw M3U8 EXT-X-MEDIA syntax.
@@ -118,6 +125,18 @@ class Media implements M3U8Serializable
 	}
 
 	/**
+	 * Sets the GROUP-ID attribute of the media.
+	 *
+	 * @param string $value The value of the GROUP-ID attribute.
+	 * @return self
+	 */
+	public function setGroupId( string $value ): self
+	{
+		$this->groupId = new GroupId( $value );
+		return $this;
+	}
+
+	/**
 	 * Parses a raw M3U8 EXT-X-MEDIA syntax and sets the properties of the Media instance.
 	 *
 	 * @param string $rawMediaSyntax The raw M3U8 EXT-X-MEDIA syntax.
@@ -150,6 +169,10 @@ class Media implements M3U8Serializable
 			else if( $key === 'TYPE' )
 			{
 				$this->type = new MediaType( $value );
+			}
+			else if( $key === 'GROUP-ID' )
+			{
+				$this->groupId = new GroupId( $value );
 			}
 		}
 	}
@@ -186,6 +209,11 @@ class Media implements M3U8Serializable
 		if( $this->autoSelect )
 		{
 			$data[] = $this->autoSelect->toM3U8();
+		}
+
+		if( $this->groupId )
+		{
+			$data[] = $this->groupId->toM3U8();
 		}
 
 		return '#EXT-X-MEDIA:' . implode( ',', $data );
