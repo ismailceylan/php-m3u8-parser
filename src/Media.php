@@ -10,6 +10,13 @@ use Iceylan\M3U8\Contracts\M3U8Serializable;
 class Media implements M3U8Serializable
 {
 	/**
+	 * The properties of the stream.
+	 * 
+	 * @var array
+	 */
+	public array $nonStandardProps = [];
+
+	/**
 	 * The default attribute of the media.
 	 *
 	 * @var Boolean|null
@@ -173,6 +180,10 @@ class Media implements M3U8Serializable
 			else if( $key === 'GROUP-ID' )
 			{
 				$this->setGroupId( $value );
+			}
+			else
+			{
+				$this->nonStandardProps[ $key ] = $value;
 			}
 		}
 	}
