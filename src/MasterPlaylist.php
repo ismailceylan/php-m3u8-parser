@@ -54,14 +54,14 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
             // handle streams
             if( str_starts_with( $line, '#EXT-X-STREAM-INF' ))
             {
-                $stream = $this->streams[] = new Stream( $line );
+                $this->push( $stream = new Stream( $line ));
                 $stream->setUri( $lines[ $i + 1 ]);
                 $i++;
             }
             // handle media definitions
             else if( str_starts_with( $line, '#EXT-X-MEDIA' ))
             {
-                $this->medias[] = new Media( $line );
+                $this->push( new Media( $line ));
             }
             // skip comments or blank lines etc.
             else
@@ -106,8 +106,15 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
     {
         foreach( $playlist as $list )
         {
-            $this->streams = array_merge( $this->streams, $list->streams );
-            $this->medias = array_merge( $this->medias, $list->medias );
+            foreach( $list->streams as $stream )
+            {
+                $this->push( $stream );
+            }
+
+            foreach( $list->medias as $media )
+            {
+                $this->push( $media );
+            }
         }
 
         return $this;
