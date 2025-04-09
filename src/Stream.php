@@ -73,6 +73,13 @@ class Stream implements M3U8Serializable
 	public ?GroupId $audioGroup = null;
 
 	/**
+	 * The subtitle group of the stream.
+	 *
+	 * @var GroupId|null
+	 */
+	public ?GroupId $subtitleGroup = null;
+
+	/**
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
 	 * @param string $rawStreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
@@ -127,6 +134,10 @@ class Stream implements M3U8Serializable
 			else if( $key === 'AUDIO' )
 			{
 				$this->setAudioGroup( $value );
+			}
+			else if( $key === 'SUBTITLES' )
+			{
+				$this->setSubtitleGroup( $value );
 			}
 			else
 			{
@@ -235,6 +246,18 @@ class Stream implements M3U8Serializable
 	}
 
 	/**
+	 * Sets the subtitle group of the stream.
+	 *
+	 * @param string $subtitleGroup The subtitle group to set for the stream.
+	 * @return self Returns the instance of the Stream class.
+	 */
+	public function setSubtitleGroup( string $subtitleGroup ): self
+	{
+		$this->subtitleGroup = new GroupId( $subtitleGroup );
+		return $this;
+	}
+
+	/**
 	 * Converts the stream to a string in the M3U8 format.
 	 *
 	 * The M3U8 format is '#EXT-X-STREAM-INF:<program-id>,<resolution>,<bandwidth>,<codecs>'.
@@ -278,6 +301,11 @@ class Stream implements M3U8Serializable
 		if( $this->audioGroup )
 		{
 			$data[] = $this->audioGroup->toM3U8();
+		}
+
+		if( $this->subtitleGroup )
+		{
+			$data[] = $this->subtitleGroup->toM3U8();
 		}
 
 		return '#EXT-X-STREAM-INF:' . implode( ',', $data );
