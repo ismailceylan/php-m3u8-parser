@@ -77,18 +77,18 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
      * If the provided item is a Media instance, it is added to the medias array.
      * If it is a Stream instance, it is added to the streams array.
      *
-     * @param Stream|Media $stream The stream or media to be added.
+     * @param Stream|Media $entity The stream or media to be added.
      * @return self Returns the instance of the MasterPlaylist class.
      */
-    public function push( Stream|Media $stream ): self
+    public function push( Stream|Media $entity ): self
     {
-        if( $stream instanceof Media )
+        if( $entity instanceof Media )
         {
-            $this->medias[] = $stream;
+            $this->medias[] = $entity;
         }
-        else if( $stream instanceof Stream )
+        else if( $entity instanceof Stream )
         {
-            $this->streams[] = $stream;
+            $this->streams[] = $entity;
         }
 
         return $this;
