@@ -66,6 +66,13 @@ class Stream implements M3U8Serializable
 	public ?FrameRate $frameRate = null;
 
 	/**
+	 * The audio group of the stream.
+	 *
+	 * @var GroupId|null
+	 */
+	public ?GroupId $audioGroup = null;
+
+	/**
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
 	 * @param string $rawStreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
@@ -116,6 +123,10 @@ class Stream implements M3U8Serializable
 			else if( $key === 'FRAME-RATE' )
 			{
 				$this->setFrameRate( $value );
+			}
+			else if( $key === 'AUDIO' )
+			{
+				$this->setAudioGroup( $value );
 			}
 			else
 			{
@@ -212,6 +223,18 @@ class Stream implements M3U8Serializable
 	}
 
 	/**
+	 * Sets the audio group of the stream.
+	 *
+	 * @param string $audioGroup The audio group to set for the stream.
+	 * @return self Returns the instance of the Stream class.
+	 */
+	public function setAudioGroup( string $audioGroup ): self
+	{
+		$this->audioGroup = new GroupId( $audioGroup );
+		return $this;
+	}
+
+	/**
 	 * Converts the stream to a string in the M3U8 format.
 	 *
 	 * The M3U8 format is '#EXT-X-STREAM-INF:<program-id>,<resolution>,<bandwidth>,<codecs>'.
@@ -250,6 +273,11 @@ class Stream implements M3U8Serializable
 		if( $this->codecs )
 		{
 			$data[] = $this->codecs->toM3U8();
+		}
+
+		if( $this->audioGroup )
+		{
+			$data[] = $this->audioGroup->toM3U8();
 		}
 
 		return '#EXT-X-STREAM-INF:' . implode( ',', $data );
