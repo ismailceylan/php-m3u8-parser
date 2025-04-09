@@ -12,9 +12,9 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
     /**
      * The streams of the master playlist.
      *
-     * @var array
+     * @var StreamList
      */
-    public array $streams = [];
+    public StreamList $streams;
 
     /**
      * The medias of the master playlist.
@@ -22,6 +22,16 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
      * @var array
      */
     public array $medias = [];
+
+    /**
+     * Constructs a MasterPlaylist.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->streams = new StreamList;
+    }
 
     /**
      * Checks if the given data contains the '#EXT-X-STREAM-INF:' tag.
@@ -88,7 +98,7 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
         }
         else if( $entity instanceof Stream )
         {
-            $this->streams[] = $entity;
+            $this->streams->push( $entity );
         }
 
         return $this;
@@ -128,19 +138,13 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
     public function toM3U8(): string
     {
         return "#EXTM3U\n" .
-        implode(
-            "\n",
-            array_map(
-                fn( $stream ) => $stream->toM3U8() . "\n" . $stream->uri,
-                $this->streams
-            )
-        ) . "\n\n" .
-        implode(
-            "\n",
-            array_map(
-                fn( $media ) => $media->toM3U8(),
-                $this->medias
-            )
-        );
+            $this->streams->toM3U8() . "\n\n" .
+            implode(
+                "\n",
+                array_map(
+                    fn( $media ) => $media->toM3U8(),
+                    $this->medias
+                )
+            );
     }
 }
