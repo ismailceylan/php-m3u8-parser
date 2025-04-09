@@ -28,6 +28,17 @@ class GroupId implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Checks if the given GroupId is equal to the current instance.
+	 *
+	 * @param GroupId $groupId The GroupId to compare with.
+	 * @return bool True if the given GroupId is equal, false otherwise.
+	 */
+	public function isEqual( GroupId $groupId ): bool
+	{
+		return $this->value === $groupId->value;
+	}
+
+	/**
 	 * Converts the GROUP-ID to a string in the M3U8 format.
 	 * The M3U8 format for the GROUP-ID is 'GROUP-ID=<value>'.
 	 *
