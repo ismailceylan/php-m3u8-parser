@@ -24,6 +24,20 @@ class Stream implements M3U8Serializable
 	public ?string $uri = null;
 
 	/**
+	 * The audios of the stream.
+	 *
+	 * @var array
+	 */
+	public array $audios = [];
+
+	/**
+	 * The subtitles of the stream.
+	 *
+	 * @var array
+	 */
+	public array $subtitles = [];
+
+	/**
 	 * The bandwidth of the stream.
 	 *
 	 * @var Bandwidth|null
@@ -254,6 +268,32 @@ class Stream implements M3U8Serializable
 	public function setSubtitleGroup( string $subtitleGroup ): self
 	{
 		$this->subtitleGroup = new GroupId( $subtitleGroup );
+		return $this;
+	}
+
+	/**
+	 * Adds a media to the stream, checking its type and group.
+	 *
+	 * If the media type is 'AUDIO' and it matches the stream's audio group,
+	 * it is added to the audios array. If the media type is 'SUBTITLE'
+	 * and it matches the stream's subtitle group, it is added to the
+	 * subtitles array.
+	 *
+	 * @param Media $media The media to be added.
+	 * @return self Returns the instance of the Stream class.
+	 */
+	public function push( Media $media ): self
+	{
+		if( $media->type == 'audio' && $media->isOnSameGroup( $this->audioGroup ))
+		{
+			$this->audios[] = $media;
+		}
+
+		if( $media->type == 'subtitle' && $media->isOnSameGroup( $this->subtitleGroup ))
+		{
+			$this->subtitles[] = $media;
+		}
+
 		return $this;
 	}
 
