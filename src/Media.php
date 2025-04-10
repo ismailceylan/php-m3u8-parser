@@ -163,6 +163,22 @@ class Media implements M3U8Serializable
 	}
 
 	/**
+	 * Checks if the media is on the same group as the given group-id.
+	 *
+	 * @param GroupId|null $target The target group-id to compare with.
+	 * @return bool True if the media is on the same group as the target, false otherwise.
+	 */
+	public function isOnSameGroup( ?GroupId $target = null ): bool
+	{
+		if( ! $target )
+		{
+			return false;
+		}
+
+		return $target->isEqual( $this->groupId );
+	}
+
+	/**
 	 * Parses a raw M3U8 EXT-X-MEDIA syntax and sets the properties of the Media instance.
 	 *
 	 * @param string $rawMediaSyntax The raw M3U8 EXT-X-MEDIA syntax.
