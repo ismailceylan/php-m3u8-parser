@@ -40,6 +40,22 @@ class StreamList implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Attaches a media to each stream in the list of streams.
+	 *
+	 * @param Media $media The media to be attached.
+	 * @return self Returns the instance of the StreamList class.
+	 */
+	public function attach( Media $media ): self
+	{
+		foreach( $this->streams as $stream )
+		{
+			$stream->push( $media );
+		}
+
+		return $this;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function jsonSerialize(): array
