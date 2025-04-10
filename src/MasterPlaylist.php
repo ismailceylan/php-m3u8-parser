@@ -95,6 +95,7 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
         if( $entity instanceof Media )
         {
             $this->medias[] = $entity;
+            $this->streams->attach( $entity );
         }
         else if( $entity instanceof Stream )
         {
