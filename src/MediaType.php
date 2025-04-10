@@ -28,6 +28,16 @@ class MediaType implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Returns the media type as a string.
+	 *
+	 * @return string The media type.
+	 */
+	public function __toString()
+	{
+		return strtolower( $this->type );
+	}
+
+	/**
 	 * Converts the media type to a string in the M3U8 format.
 	 *
 	 * The M3U8 format is 'TYPE=<type>'.
