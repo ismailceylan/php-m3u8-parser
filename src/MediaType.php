@@ -58,6 +58,6 @@ class MediaType implements M3U8Serializable, JsonSerializable
 	 */
 	public function jsonSerialize(): string
 	{
-		return $this->type;
+		return $this->__toString();
 	}
 }
