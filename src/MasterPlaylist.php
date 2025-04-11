@@ -19,9 +19,9 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
     /**
      * The medias of the master playlist.
      *
-     * @var array
+     * @var MediaList
      */
-    public array $medias = [];
+    public MediaList $medias;
 
     /**
      * Constructs a MasterPlaylist.
@@ -31,6 +31,7 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
     public function __construct()
     {
         $this->streams = new StreamList;
+        $this->medias = new MediaList;
     }
 
     /**
@@ -94,12 +95,13 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
     {
         if( $entity instanceof Media )
         {
-            $this->medias[] = $entity;
+            $this->medias->push( $entity );
             $this->streams->attach( $entity );
         }
         else if( $entity instanceof Stream )
         {
             $this->streams->push( $entity );
+            $this->medias->attach( $entity );
         }
 
         return $this;
@@ -140,12 +142,6 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
     {
         return "#EXTM3U\n" .
             $this->streams->toM3U8() . "\n\n" .
-            implode(
-                "\n",
-                array_map(
-                    fn( $media ) => $media->toM3U8(),
-                    $this->medias
-                )
-            );
+            $this->medias->toM3U8();
     }
 }
