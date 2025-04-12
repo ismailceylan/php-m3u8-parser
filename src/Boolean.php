@@ -31,7 +31,7 @@ class Boolean implements M3U8Serializable, JsonSerializable
 	 *                           If a string is provided, it will be converted 
 	 *                           to lowercase. The value can be 'yes', 'no', 
 	 *                           true, or false. Other values will result in null.
-	 * @param ?string $name The name of the boolean value.
+	 * @param ?string $key The name of the boolean value.
 	 */
 	public function __construct( string|bool $value, ?string $key )
 	{
