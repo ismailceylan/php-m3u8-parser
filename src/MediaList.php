@@ -32,7 +32,7 @@ class MediaList implements M3U8Serializable, JsonSerializable
 	/**
 	 * Gets the list of medias.
 	 *
-	 * @return array The list of medias.
+	 * @return Media[] The list of medias.
 	 */
 	public function getMedias(): array
 	{

@@ -32,7 +32,7 @@ class StreamList implements M3U8Serializable, JsonSerializable
 	/**
 	 * Gets the list of streams.
 	 *
-	 * @return array The list of streams.
+	 * @return Stream[] The list of streams.
 	 */
 	public function getStreams(): array
 	{
