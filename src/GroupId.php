@@ -18,13 +18,22 @@ class GroupId implements M3U8Serializable, JsonSerializable
 	public string $value;
 
 	/**
+	 * The name of the boolean value.
+	 *
+	 * @var string|null
+	 */
+	public ?string $key = null;
+
+	/**
 	 * Initializes a new instance of the GroupId class.
 	 *
 	 * @param string $value The value of the GROUP-ID.
+	 * @param ?string $key The name of the boolean value.
 	 */
-	public function __construct( string $value )
+	public function __construct( string $value, ?string $key = 'GROUP-ID' )
 	{
 		$this->value = $value;
+		$this->key = $key;
 	}
 
 	/**
@@ -38,15 +47,16 @@ class GroupId implements M3U8Serializable, JsonSerializable
 		return $this->value === $groupId->value;
 	}
 
+	
 	/**
 	 * Converts the GROUP-ID to a string in the M3U8 format.
-	 * The M3U8 format for the GROUP-ID is 'GROUP-ID=<value>'.
+	 * The M3U8 format for the GROUP-ID is '<key>="<value>"'.
 	 *
 	 * @return string The GROUP-ID in the M3U8 format.
 	 */
 	public function toM3U8(): string
 	{
-		return 'GROUP-ID="' . $this->value . '"';
+		return $this->key . '="' .  $this->value . '"';
 	}
 
 	/**

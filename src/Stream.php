@@ -255,7 +255,7 @@ class Stream implements M3U8Serializable
 	 */
 	public function setAudioGroup( string $audioGroup ): self
 	{
-		$this->audioGroup = new GroupId( $audioGroup );
+		$this->audioGroup = new GroupId( $audioGroup, 'AUDIO' );
 		return $this;
 	}
 
@@ -267,7 +267,7 @@ class Stream implements M3U8Serializable
 	 */
 	public function setSubtitleGroup( string $subtitleGroup ): self
 	{
-		$this->subtitleGroup = new GroupId( $subtitleGroup );
+		$this->subtitleGroup = new GroupId( $subtitleGroup, 'SUBTITLES' );
 		return $this;
 	}
 
