@@ -2,6 +2,7 @@
 
 namespace Iceylan\M3U8;
 
+use Closure;
 use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
@@ -94,12 +95,22 @@ class Stream implements M3U8Serializable
 	public ?GroupId $subtitleGroup = null;
 
 	/**
+	 * The sync medias callback.
+	 *
+	 * @var Closure
+	 */
+	private Closure $syncMedias;
+
+	/**
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
 	 * @param string $rawStreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
+	 * @param Closure $syncMedias The callback to sync the medias.
 	 */
-	public function __construct( string $rawStreamSyntax = '' )
+	public function __construct( string $rawStreamSyntax = '', Closure $syncMedias )
 	{
+		$this->syncMedias = $syncMedias;
+
 		if( $rawStreamSyntax )
 		{
 			$this->parseRawSyntax( $rawStreamSyntax );
@@ -256,6 +267,8 @@ class Stream implements M3U8Serializable
 	public function setAudioGroup( string $audioGroup ): self
 	{
 		$this->audioGroup = new GroupId( $audioGroup, 'AUDIO' );
+		$this->syncMedias->__invoke( $this );
+		
 		return $this;
 	}
 
@@ -268,6 +281,8 @@ class Stream implements M3U8Serializable
 	public function setSubtitleGroup( string $subtitleGroup ): self
 	{
 		$this->subtitleGroup = new GroupId( $subtitleGroup, 'SUBTITLES' );
+		$this->syncMedias->__invoke( $this );
+		
 		return $this;
 	}
 

@@ -2,6 +2,7 @@
 
 namespace Iceylan\M3U8;
 
+use Closure;
 use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
@@ -65,7 +66,13 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
             // handle streams
             if( str_starts_with( $line, '#EXT-X-STREAM-INF' ))
             {
-                $this->push( $stream = new Stream( $line ));
+                $this->push(
+                    $stream = new Stream(
+                        rawStreamSyntax: $line,
+                        syncMedias: Closure::fromCallable([ $this, 'syncStreamMedias' ])
+                    )
+                );
+
                 $stream->setUri( $lines[ $i + 1 ]);
                 $i++;
             }
@@ -79,6 +86,23 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
             {
                 // continue;
             }
+        }
+    }
+
+    /**
+     * Synchronizes the medias of the given stream with the master playlist.
+     *
+     * It loops through all the medias in the master playlist and adds them to
+     * the given stream.
+     *
+     * @param Stream $stream The stream to be synced.
+     * @return void
+     */
+    private function syncStreamMedias( Stream $stream )
+    {
+        foreach( $this->medias->getMedias() as $media )
+        {
+            $stream->push( $media );
         }
     }
 
