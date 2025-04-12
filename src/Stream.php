@@ -27,16 +27,16 @@ class Stream implements M3U8Serializable
 	/**
 	 * The audios of the stream.
 	 *
-	 * @var array
+	 * @var ObjectSet
 	 */
-	public array $audios = [];
+	public ObjectSet $audios;
 
 	/**
 	 * The subtitles of the stream.
 	 *
-	 * @var array
+	 * @var ObjectSet
 	 */
-	public array $subtitles = [];
+	public ObjectSet $subtitles;
 
 	/**
 	 * The bandwidth of the stream.
@@ -109,6 +109,8 @@ class Stream implements M3U8Serializable
 	 */
 	public function __construct( string $rawStreamSyntax = '', Closure $syncMedias )
 	{
+		$this->audios = new ObjectSet;
+		$this->subtitles = new ObjectSet;
 		$this->syncMedias = $syncMedias;
 
 		if( $rawStreamSyntax )
@@ -301,12 +303,12 @@ class Stream implements M3U8Serializable
 	{
 		if( $media->type == 'audio' && $media->isOnSameGroup( $this->audioGroup ))
 		{
-			$this->audios[] = $media;
+			$this->audios->set( $media );
 		}
 
 		if( $media->type == 'subtitle' && $media->isOnSameGroup( $this->subtitleGroup ))
 		{
-			$this->subtitles[] = $media;
+			$this->subtitles->set( $media );
 		}
 
 		return $this;
