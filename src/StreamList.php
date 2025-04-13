@@ -56,6 +56,16 @@ class StreamList implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Checks if the list of streams is empty.
+	 *
+	 * @return bool True if the list of streams is empty, false otherwise.
+	 */
+	public function isEmpty(): bool
+	{
+		return empty( $this->streams );
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	public function jsonSerialize(): array

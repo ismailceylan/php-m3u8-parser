@@ -56,6 +56,16 @@ class MediaList implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Checks if the list of medias is empty.
+	 *
+	 * @return bool True if the list of medias is empty, false otherwise.
+	 */
+	public function isEmpty(): bool
+	{
+		return empty( $this->medias );
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	public function jsonSerialize(): array

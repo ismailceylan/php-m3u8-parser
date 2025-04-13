@@ -237,11 +237,25 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
         $data =
         [
             'streams' => $this->streams,
+            'medias' => $this->medias
         ];
 
-        if( ! ( $this->options & self::HideMediasInJson ))
+        if( $this->options & self::HideEmptyArraysInJson )
         {
-            $data[ 'medias' ] = $this->medias;
+            if( $this->streams->isEmpty())
+            {
+                unset( $data[ 'streams' ]);
+            }
+
+            if( $this->medias->isEmpty())
+            {
+                unset( $data[ 'medias' ]);
+            }
+        }
+
+        if( $this->options & self::HideMediasInJson )
+        {
+            unset( $data[ 'medias' ]);
         }
 
         return $data;
