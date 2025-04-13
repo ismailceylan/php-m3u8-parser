@@ -3,12 +3,13 @@
 namespace Iceylan\M3U8;
 
 use Closure;
+use JsonSerializable;
 use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
  * Represent a master playlist.
  */
-class MasterPlaylist extends Playlist implements M3U8Serializable
+class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializable
 {
     /**
      * The streams of the master playlist.
@@ -25,14 +26,31 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
     public MediaList $medias;
 
     /**
-     * Constructs a MasterPlaylist.
+     * The options of the master playlist.
      *
+     * @var integer
+     */
+    private int $options;
+
+    /**
+     * The visibility option of the medias property in json.
+     *
+     * @var integer
+     */
+    public const HideMediasInJson = 1;
+
+
+    /**
+     * Constructs a MasterPlaylist.
+     * 
+     * @param integer $options options of the master playlist
      * @return void
      */
-    public function __construct()
+    public function __construct( int $options = 0 )
     {
         $this->streams = new StreamList;
         $this->medias = new MediaList;
+        $this->options = $options;
     }
 
     /**
@@ -167,5 +185,25 @@ class MasterPlaylist extends Playlist implements M3U8Serializable
         return "#EXTM3U\n" .
             $this->streams->toM3U8() . "\n\n" .
             $this->medias->toM3U8();
+    }
+
+    /**
+     * Serializes the master playlist to a value that can be serialized natively by json_encode().
+     *
+     * @return array The serialized representation of the master playlist.
+     */
+    public function jsonSerialize(): array
+    {
+        $data =
+        [
+            'streams' => $this->streams,
+        ];
+
+        if( ! ( $this->options & self::HideMediasInJson ))
+        {
+            $data[ 'medias' ] = $this->medias;
+        }
+
+        return $data;
     }
 }
