@@ -46,4 +46,14 @@ class Uri implements M3U8Serializable, JsonSerializable
 	{
 		return $this->uri;
 	}
+
+	/**
+	 * Returns the URI as a string.
+	 *
+	 * @return string The URI as a string.
+	 */
+	public function __toString(): string
+	{
+		return $this->uri;
+	}
 }

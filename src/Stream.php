@@ -19,13 +19,6 @@ class Stream implements M3U8Serializable, JsonSerializable
 	public array $nonStandardProps = [];
 
 	/**
-	 * The URI of the stream.
-	 * 
-	 * @var string|null
-	 */
-	public ?string $uri = null;
-
-	/**
 	 * The audios of the stream.
 	 *
 	 * @var ObjectSet
@@ -38,6 +31,13 @@ class Stream implements M3U8Serializable, JsonSerializable
 	 * @var ObjectSet
 	 */
 	public ObjectSet $subtitles;
+
+	/**
+	 * The URI of the stream.
+	 * 
+	 * @var Uri|null
+	 */
+	public ?Uri $uri = null;
 
 	/**
 	 * The bandwidth of the stream.
@@ -185,15 +185,15 @@ class Stream implements M3U8Serializable, JsonSerializable
 		return $this;
 	}
 
-	/**
-	 * Set the URI of the stream.
-	 * 
-	 * @param string $uri The URI to set for the stream.
-	 * @return self Returns the instance of the Stream class.
-	 */
-	public function setUri( string $uri ): self
+    /**
+     * Sets the URI attribute of the stream.
+     *
+     * @param string $value The URI to set for the stream.
+     * @return self Returns the instance of the Stream class.
+     */
+	public function setUri( string $value ): self
 	{
-		$this->uri = $uri;
+		$this->uri = new Uri( $value );
 		return $this;
 	}
 
