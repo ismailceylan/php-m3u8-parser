@@ -398,13 +398,17 @@ class Stream implements M3U8Serializable, JsonSerializable
 			'codecs' => $this->codecs,
 			'programID' => $this->programID,
 			'frameRate' => $this->frameRate,
-			'audioGroup' => $this->audioGroup,
-			'subtitleGroup' => $this->subtitleGroup,
 		];
 
 		if( ! ( $this->options & MasterPlaylist::HideNonStandardPropsInJson ))
 		{
 			$data[ 'nonStandardProps' ] = $this->nonStandardProps;
+		}
+
+		if( ! ( $this->options & MasterPlaylist::HideGroupsInJson ))
+		{
+			$data[ 'audioGroup' ] = $this->audioGroup;
+			$data[ 'subtitleGroup' ] = $this->subtitleGroup;
 		}
 
 		return $data;

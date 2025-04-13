@@ -299,13 +299,17 @@ class Media implements M3U8Serializable, JsonSerializable
 			'name' => $this->name,
 			'language' => $this->language,
 			'type' => $this->type,
-			'groupId' => $this->groupId,
 			'uri' => $this->uri,
 		];
 
 		if( ! ( $this->options & MasterPlaylist::HideNonStandardPropsInJson ))
 		{
 			$data[ 'nonStandardProps' ] = $this->nonStandardProps;
+		}
+
+		if( ! ( $this->options & MasterPlaylist::HideGroupsInJson ))
+		{
+			$data[ 'groupId' ] = $this->groupId;
 		}
 
 		return $data;
