@@ -39,6 +39,12 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
      */
     public const HideMediasInJson = 1;
 
+    /**
+     * The visibility option of the non standard properties in json.
+     * 
+     * @var integer
+     */
+    public const HideNonStandardPropsInJson = 2;
 
     /**
      * Constructs a MasterPlaylist.
@@ -87,7 +93,8 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
                 $this->push(
                     $stream = new Stream(
                         rawStreamSyntax: $line,
-                        syncMedias: Closure::fromCallable([ $this, 'syncStreamMedias' ])
+                        syncMedias: Closure::fromCallable([ $this, 'syncStreamMedias' ]),
+                        options: $this->options
                     )
                 );
 
@@ -97,7 +104,12 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
             // handle media definitions
             else if( str_starts_with( $line, '#EXT-X-MEDIA' ))
             {
-                $this->push( new Media( $line ));
+                $this->push(
+                    new Media(
+                        rawMediaSyntax: $line,
+                        options: $this->options
+                    )
+                );
             }
             // skip comments or blank lines etc.
             else

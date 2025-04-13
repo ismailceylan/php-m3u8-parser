@@ -3,12 +3,13 @@
 namespace Iceylan\M3U8;
 
 use Closure;
+use JsonSerializable;
 use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
  * Represent a stream.
  */
-class Stream implements M3U8Serializable
+class Stream implements M3U8Serializable, JsonSerializable
 {
 	/**
 	 * The properties of the stream.
@@ -102,16 +103,25 @@ class Stream implements M3U8Serializable
 	private Closure $syncMedias;
 
 	/**
+	 * The options of the stream.
+	 *
+	 * @var integer
+	 */
+	private int $options;
+
+	/**
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
 	 * @param string $rawStreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
 	 * @param Closure $syncMedias The callback to sync the medias.
+	 * @param int $options The options of the stream.
 	 */
-	public function __construct( string $rawStreamSyntax = '', Closure $syncMedias )
+	public function __construct( string $rawStreamSyntax = '', Closure $syncMedias, int $options = 0 )
 	{
 		$this->audios = new ObjectSet;
 		$this->subtitles = new ObjectSet;
 		$this->syncMedias = $syncMedias;
+		$this->options = $options;
 
 		if( $rawStreamSyntax )
 		{
@@ -366,5 +376,37 @@ class Stream implements M3U8Serializable
 		}
 
 		return '#EXT-X-STREAM-INF:' . implode( ',', $data );
+	}
+
+	/**
+	 * Converts the stream to a value that can be serialized natively by json_encode().
+	 *
+	 * The resulting value is an array that contains the stream's properties.
+	 *
+	 * @return array The stream's properties.
+	 */
+	public function jsonSerialize(): array
+	{
+		$data =
+		[
+			'uri' => $this->uri,
+			'audios' => $this->audios,
+			'subtitles' => $this->subtitles,
+			'bandwidth' => $this->bandwidth,
+			'averageBandwidth' => $this->averageBandwidth,
+			'resolution' => $this->resolution,
+			'codecs' => $this->codecs,
+			'programID' => $this->programID,
+			'frameRate' => $this->frameRate,
+			'audioGroup' => $this->audioGroup,
+			'subtitleGroup' => $this->subtitleGroup,
+		];
+
+		if( ! ( $this->options & MasterPlaylist::HideNonStandardPropsInJson ))
+		{
+			$data[ 'nonStandardProps' ] = $this->nonStandardProps;
+		}
+
+		return $data;
 	}
 }

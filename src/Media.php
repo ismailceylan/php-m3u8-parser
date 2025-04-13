@@ -2,12 +2,13 @@
 
 namespace Iceylan\M3U8;
 
+use JsonSerializable;
 use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
  * Represents a media in a master playlist.
  */
-class Media implements M3U8Serializable
+class Media implements M3U8Serializable, JsonSerializable
 {
 	/**
 	 * The properties of the stream.
@@ -66,12 +67,22 @@ class Media implements M3U8Serializable
 	public ?Uri $uri = null;
 
 	/**
+	 * The options of the media.
+	 *
+	 * @var integer
+	 */
+	private int $options;
+
+	/**
 	 * Constructs a Media object from a raw M3U8 media syntax.
 	 *
 	 * @param string $rawMediaSyntax The raw M3U8 EXT-X-MEDIA syntax.
+	 * @param int $options The options of the media.
 	 */
-	public function __construct( string $rawMediaSyntax = '' )
+	public function __construct( string $rawMediaSyntax = '', int $options = 0 )
 	{
+		$this->options = $options;
+
 		if( $rawMediaSyntax )
 		{
 			$this->parseRawSyntax( $rawMediaSyntax );
@@ -272,5 +283,31 @@ class Media implements M3U8Serializable
 		}
 
 		return '#EXT-X-MEDIA:' . implode( ',', $data );
+	}
+
+	/**
+	 * Converts the media to a value that can be serialized natively by json_encode().
+	 *
+	 * @return array The media's properties.
+	 */
+	public function jsonSerialize(): array
+	{
+		$data =
+		[
+			'default' => $this->default,
+			'autoSelect' => $this->autoSelect,
+			'name' => $this->name,
+			'language' => $this->language,
+			'type' => $this->type,
+			'groupId' => $this->groupId,
+			'uri' => $this->uri,
+		];
+
+		if( ! ( $this->options & MasterPlaylist::HideNonStandardPropsInJson ))
+		{
+			$data[ 'nonStandardProps' ] = $this->nonStandardProps;
+		}
+
+		return $data;
 	}
 }
