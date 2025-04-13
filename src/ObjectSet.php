@@ -63,6 +63,16 @@ class ObjectSet implements JsonSerializable
 	}
 
 	/**
+	 * Gets the number of objects in the set.
+	 *
+	 * @return int The number of objects in the set.
+	 */
+	public function length(): int
+	{
+		return $this->items->count();
+	}
+
+	/**
 	 * Serializes the list of audio streams to a value that can
 	 * be serialized natively by json_encode().
 	 *

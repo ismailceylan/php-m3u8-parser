@@ -411,6 +411,24 @@ class Stream implements M3U8Serializable, JsonSerializable
 			$data[ 'subtitleGroup' ] = $this->subtitleGroup;
 		}
 
+		if( $this->options & MasterPlaylist::HideEmptyArraysInJson )
+		{
+			if( $data[ 'audios' ]->length() == 0 )
+			{
+				unset( $data[ 'audios' ]);
+			}
+
+			if( $data[ 'subtitles' ]->length() == 0 )
+			{
+				unset( $data[ 'subtitles' ]);
+			}
+
+			if( empty( $data[ 'nonStandardProps' ]))
+			{
+				unset( $data[ 'nonStandardProps' ]);
+			}
+		}
+
 		if( $this->options & MasterPlaylist::HideNullValuesInJson )
 		{
 			if( $data[ 'uri' ] === null )

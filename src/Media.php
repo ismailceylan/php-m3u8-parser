@@ -312,6 +312,14 @@ class Media implements M3U8Serializable, JsonSerializable
 			$data[ 'groupId' ] = $this->groupId;
 		}
 
+		if( $this->options & MasterPlaylist::HideEmptyArraysInJson )
+		{
+			if( empty( $data[ 'nonStandardProps' ]))
+			{
+				unset( $data[ 'nonStandardProps' ]);
+			}
+		}
+
 		if( $this->options & MasterPlaylist::HideNullValuesInJson )
 		{
 			if( $data[ 'default' ] === null )
