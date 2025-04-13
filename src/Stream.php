@@ -392,10 +392,10 @@ class Stream implements M3U8Serializable, JsonSerializable
 			'uri' => $this->uri,
 			'audios' => $this->audios,
 			'subtitles' => $this->subtitles,
+			'codecs' => $this->codecs,
 			'bandwidth' => $this->bandwidth,
 			'averageBandwidth' => $this->averageBandwidth,
 			'resolution' => $this->resolution,
-			'codecs' => $this->codecs,
 			'programID' => $this->programID,
 			'frameRate' => $this->frameRate,
 		];
@@ -409,6 +409,34 @@ class Stream implements M3U8Serializable, JsonSerializable
 		{
 			$data[ 'audioGroup' ] = $this->audioGroup;
 			$data[ 'subtitleGroup' ] = $this->subtitleGroup;
+		}
+
+		if( $this->options & MasterPlaylist::HideNullValuesInJson )
+		{
+			if( $data[ 'bandwidth' ] === null )
+			{
+				unset( $data[ 'bandwidth' ]);
+			}
+
+			if( $data[ 'averageBandwidth' ] === null )
+			{
+				unset( $data[ 'averageBandwidth' ]);
+			}
+
+			if( $data[ 'resolution' ] === null )
+			{
+				unset( $data[ 'resolution' ]);
+			}
+
+			if( $data[ 'programID' ] === null )
+			{
+				unset( $data[ 'programID' ]);
+			}
+
+			if( $data[ 'frameRate' ] === null )
+			{
+				unset( $data[ 'frameRate' ]);
+			}
 		}
 
 		return $data;
