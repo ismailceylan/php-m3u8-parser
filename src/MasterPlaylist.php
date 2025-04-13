@@ -72,7 +72,7 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
      * 
      * @var integer
      */
-    public const PurifyJson = 31;
+    public const PurifiedJson = 31;
 
     /**
      * Constructs a MasterPlaylist.
