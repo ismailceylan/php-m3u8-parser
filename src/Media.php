@@ -312,6 +312,39 @@ class Media implements M3U8Serializable, JsonSerializable
 			$data[ 'groupId' ] = $this->groupId;
 		}
 
+		if( $this->options & MasterPlaylist::HideNullValuesInJson )
+		{
+			if( $data[ 'default' ] === null )
+			{
+				unset( $data[ 'default' ]);
+			}
+
+			if( $data[ 'autoSelect' ] === null )
+			{
+				unset( $data[ 'autoSelect' ]);
+			}
+
+			if( $data[ 'name' ] === null )
+			{
+				unset( $data[ 'name' ]);
+			}
+
+			if( $data[ 'language' ] === null )
+			{
+				unset( $data[ 'language' ]);
+			}
+
+			if( $data[ 'type' ] === null )
+			{
+				unset( $data[ 'type' ]);
+			}
+
+			if( $data[ 'uri' ] === null )
+			{
+				unset( $data[ 'uri' ]);
+			}
+		}
+
 		return $data;
 	}
 }
