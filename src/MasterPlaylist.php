@@ -54,6 +54,13 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
     public const HideGroupsInJson = 4;
 
     /**
+     * The visibility option of the null values in json.
+     * 
+     * @var integer
+     */
+    public const HideNullValuesInJson = 8;
+
+    /**
      * Constructs a MasterPlaylist.
      * 
      * @param integer $options options of the master playlist
