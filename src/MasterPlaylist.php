@@ -122,6 +122,7 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
                     $stream = new Stream(
                         rawStreamSyntax: $line,
                         syncMedias: Closure::fromCallable([ $this, 'syncStreamMedias' ]),
+                        url: $this->url,
                         options: $this->options
                     )
                 );

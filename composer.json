@@ -14,8 +14,19 @@
             "email": "ismaillceylan@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "require": {
-        "larapack/dd": "^1.1"
-    }
+        "larapack/dd": "^1.1",
+        "iceylan/urlify": "*",
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../php-urlify/",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "prefer-stable": true
 }

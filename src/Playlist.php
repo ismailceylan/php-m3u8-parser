@@ -2,6 +2,7 @@
 
 namespace Iceylan\M3U8;
 
+use Iceylan\Urlify\Url;
 use ReflectionClass;
 
 /**
@@ -9,6 +10,13 @@ use ReflectionClass;
  */
 abstract class Playlist
 {
+    /**
+     * The URL of the master playlist.
+     *
+     * @var Url|null
+     */
+    public ?Url $url = null;
+
 	abstract function test( string $data ): bool;
 	abstract function parse( string $content ): void;
 
@@ -34,6 +42,19 @@ abstract class Playlist
 		}
 
 		$this->parse( $content );
+	}
+
+	/**
+	 * Loads a playlist from a remote URL.
+	 * 
+	 * @param string $url The URL of the playlist.
+	 * @throws \Exception if the content does not start with the M3U8 magic bytes
+	 * @throws \Exception if the content does not pass the test implemented by the child class
+	 */
+	public function loadRemote( string $url )
+	{
+		$this->url = new Url( $url );
+		$this->loadRaw( file_get_contents( $url ));
 	}
 
 	/**

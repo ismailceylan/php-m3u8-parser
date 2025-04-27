@@ -4,6 +4,7 @@ namespace Iceylan\M3U8;
 
 use Closure;
 use JsonSerializable;
+use Iceylan\Urlify\Url;
 use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
@@ -103,6 +104,13 @@ class Stream implements M3U8Serializable, JsonSerializable
 	private Closure $syncMedias;
 
 	/**
+	 * The full url for the stream.
+	 *
+	 * @var Url|null
+	 */
+	private ?Url $url;
+
+	/**
 	 * The options of the stream.
 	 *
 	 * @var integer
@@ -114,13 +122,20 @@ class Stream implements M3U8Serializable, JsonSerializable
 	 *
 	 * @param string $rawStreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
 	 * @param Closure $syncMedias The callback to sync the medias.
+	 * @param Url|null $url The full url for the stream.
 	 * @param int $options The options of the stream.
 	 */
-	public function __construct( string $rawStreamSyntax = '', Closure $syncMedias, int $options = 0 )
+	public function __construct(
+		string $rawStreamSyntax = '',
+		Closure $syncMedias,
+		?Url $url,
+		int $options = 0
+	)
 	{
 		$this->audios = new ObjectSet;
 		$this->subtitles = new ObjectSet;
 		$this->syncMedias = $syncMedias;
+		$this->url = $url;
 		$this->options = $options;
 
 		if( $rawStreamSyntax )
