@@ -4,8 +4,81 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7808dde95726a8e00373aa8a71a5f9fb",
+    "content-hash": "5f7e2b2502a662b566b1f91b208ec97c",
     "packages": [
+        {
+            "name": "iceylan/eventor",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ismailceylan/php-eventor.git",
+                "reference": "685b0354294f280176dc70440222c9ccda2b42ed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ismailceylan/php-eventor/zipball/685b0354294f280176dc70440222c9ccda2b42ed",
+                "reference": "685b0354294f280176dc70440222c9ccda2b42ed",
+                "shasum": ""
+            },
+            "require": {
+                "larapack/dd": "^1.1",
+                "php": ">=8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Iceylan\\Eventor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ismail Ceylan",
+                    "email": "ismaillceylan@gmail.com"
+                }
+            ],
+            "description": "Simple event emitter and dispatcher for PHP",
+            "support": {
+                "issues": "https://github.com/ismailceylan/php-eventor/issues",
+                "source": "https://github.com/ismailceylan/php-eventor/tree/v1.0.1"
+            },
+            "time": "2025-04-26T14:58:51+00:00"
+        },
+        {
+            "name": "iceylan/urlify",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../php-urlify",
+                "reference": "9b542beb9bffb6275cf27f5c2cf9e5f66eef01e7"
+            },
+            "require": {
+                "larapack/dd": "^1.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Iceylan\\Urlify\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ismail Ceylan",
+                    "email": "ismaillceylan@gmail.com"
+                }
+            ],
+            "description": "Modern PHP URL parser with modular components.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
         {
             "name": "larapack/dd",
             "version": "1.1",
@@ -212,9 +285,9 @@
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": [],
-    "prefer-stable": false,
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],

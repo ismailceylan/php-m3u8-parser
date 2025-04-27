@@ -84,7 +84,7 @@ class StreamList implements M3U8Serializable, JsonSerializable
 		return implode(
             "\n",
             array_map(
-                fn( $stream ) => $stream->toM3U8() . "\n" . $stream->uri,
+                fn( $stream ) => $stream->toM3U8(),
                 $this->getStreams()
             )
 		);

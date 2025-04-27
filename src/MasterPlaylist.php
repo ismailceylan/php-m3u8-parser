@@ -75,6 +75,13 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
     public const PurifiedJson = 31;
 
     /**
+     * The hooks of the master playlist.
+     *
+     * @var Hooks
+     */
+    private Hooks $hooks;
+
+    /**
      * Constructs a MasterPlaylist.
      * 
      * @param integer $options options of the master playlist
@@ -84,6 +91,7 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
     {
         $this->streams = new StreamList;
         $this->medias = new MediaList;
+        $this->hooks = new Hooks;
         $this->options = $options;
     }
 
@@ -123,6 +131,7 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
                         rawStreamSyntax: $line,
                         syncMedias: Closure::fromCallable([ $this, 'syncStreamMedias' ]),
                         url: $this->url,
+                        hooks: $this->hooks,
                         options: $this->options
                     )
                 );
@@ -260,5 +269,18 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
         }
 
         return $data;
+    }
+    
+    /**
+     * Registers a hook.
+     *
+     * @param string $name The name of the hook.
+     * @param callable $callable The callable to be called when the hook is triggered.
+     * @return self The instance of the master playlist.
+     */
+    public function hook( string $name, callable $callable ): self
+    {
+        $this->hooks->add( $name, $callable );
+        return $this;
     }
 }

@@ -111,6 +111,13 @@ class Stream implements M3U8Serializable, JsonSerializable
 	private ?Url $url;
 
 	/**
+	 * The hooks of the stream.
+	 *
+	 * @var Hooks|null
+	 */
+	private ?Hooks $hooks;
+
+	/**
 	 * The options of the stream.
 	 *
 	 * @var integer
@@ -123,12 +130,14 @@ class Stream implements M3U8Serializable, JsonSerializable
 	 * @param string $rawStreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
 	 * @param Closure $syncMedias The callback to sync the medias.
 	 * @param Url|null $url The full url for the stream.
+	 * @param Hooks|null $hooks The hooks of the stream.
 	 * @param int $options The options of the stream.
 	 */
 	public function __construct(
 		string $rawStreamSyntax = '',
 		Closure $syncMedias,
 		?Url $url,
+		?Hooks $hooks,
 		int $options = 0
 	)
 	{
@@ -136,6 +145,7 @@ class Stream implements M3U8Serializable, JsonSerializable
 		$this->subtitles = new ObjectSet;
 		$this->syncMedias = $syncMedias;
 		$this->url = $url;
+		$this->hooks = $hooks;
 		$this->options = $options;
 
 		if( $rawStreamSyntax )
@@ -390,7 +400,26 @@ class Stream implements M3U8Serializable, JsonSerializable
 			$data[] = $this->subtitleGroup->toM3U8();
 		}
 
-		return '#EXT-X-STREAM-INF:' . implode( ',', $data );
+		return '#EXT-X-STREAM-INF:' . implode( ',', $data ) . "\n" . $this->getFormattedUri();
+	}
+
+	/**
+	 * Gets the formatted URI by triggering the 'formatter.toM3U8.segment-uri'
+	 * hook as a string.
+	 *
+	 * @return string The formatted URI as a string.
+	 */
+	private function getFormattedUri(): string
+	{
+		$formattedUrl = $this->hooks->trigger( 'formatter.toM3U8.segment-uri',
+		[
+			$this->url,
+			$this->uri
+		]);
+
+		return $formattedUrl
+			? $formattedUrl[ 0 ]
+			: $this->uri;
 	}
 
 	/**
