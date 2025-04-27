@@ -17,7 +17,20 @@ abstract class Playlist
      */
     public ?Url $url = null;
 
+	/**
+	 * Test if the content is a valid M3U8 playlist.
+	 *
+	 * @param string $data
+	 * @return boolean
+	 */
 	abstract function test( string $data ): bool;
+
+	/**
+	 * Parse the content of the playlist.
+	 *
+	 * @param string $content
+	 * @return void
+	 */
 	abstract function parse( string $content ): void;
 
 	/**
