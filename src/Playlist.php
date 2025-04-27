@@ -2,8 +2,9 @@
 
 namespace Iceylan\M3U8;
 
-use Iceylan\Urlify\Url;
+use Exception;
 use ReflectionClass;
+use Iceylan\Urlify\Url;
 
 /**
  * Represent a playlist.
@@ -63,11 +64,20 @@ abstract class Playlist
 	 * @param string $url The URL of the playlist.
 	 * @throws \Exception if the content does not start with the M3U8 magic bytes
 	 * @throws \Exception if the content does not pass the test implemented by the child class
+	 * @throws \Exception if the remote playlist could not be loaded
 	 */
 	public function loadRemote( string $url )
 	{
 		$this->url = new Url( $url );
-		$this->loadRaw( file_get_contents( $url ));
+
+		$content = @file_get_contents( $url );
+
+		if( $content === false )
+		{
+			throw new Exception( "Failed to load playlist from URL: $url" );
+		}
+
+		$this->loadRaw( $content );
 	}
 
 	/**
