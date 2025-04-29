@@ -70,7 +70,14 @@ abstract class Playlist
 	{
 		$this->url = new Url( $url );
 
-		$content = @file_get_contents( $url );
+		set_error_handler( fn( $severity, $message ) =>
+			error_reporting() & $severity &&
+				throw new Exception( $message )
+		);
+
+		$content = file_get_contents( $url );
+
+		restore_error_handler();
 
 		if( $content === false )
 		{
