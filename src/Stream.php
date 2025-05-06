@@ -423,6 +423,25 @@ class Stream implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Gets the resolved URL by triggering the 'resolve.segment-uri'
+	 * hook as a string.
+	 *
+	 * @return string The resolved URL as a string.
+	 */
+	public function getResolvedUrl(): string
+	{
+		$resolvedUrl = $this->hooks->trigger( 'resolve.segment-uri',
+		[
+			$this->url,
+			$this->uri
+		]);
+
+		return $resolvedUrl
+			? $resolvedUrl[ 0 ]
+			: $this->uri;
+	}
+
+	/**
 	 * Converts the stream to a value that can be serialized natively by json_encode().
 	 *
 	 * The resulting value is an array that contains the stream's properties.
