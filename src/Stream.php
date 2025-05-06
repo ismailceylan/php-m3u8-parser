@@ -404,14 +404,14 @@ class Stream implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
-	 * Gets the formatted URI by triggering the 'formatter.toM3U8.segment-uri'
+	 * Gets the formatted URI by triggering the 'format.toM3U8.segment-uri'
 	 * hook as a string.
 	 *
 	 * @return string The formatted URI as a string.
 	 */
 	private function getFormattedUri(): string
 	{
-		$formattedUrl = $this->hooks->trigger( 'formatter.toM3U8.segment-uri',
+		$formattedUrl = $this->hooks->trigger( 'format.toM3U8.segment-uri',
 		[
 			$this->url,
 			$this->uri
