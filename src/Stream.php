@@ -453,6 +453,7 @@ class Stream implements M3U8Serializable, JsonSerializable
 		$data =
 		[
 			'uri' => $this->uri,
+			'url' => $this->getResolvedUrl(),
 			'audios' => $this->audios,
 			'subtitles' => $this->subtitles,
 			'codecs' => $this->codecs,
