@@ -75,6 +75,13 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
     public const PurifiedJson = 31;
 
     /**
+     * The eager loading option of segments playlists.
+     * 
+     * @var integer
+     */
+    public const EagerLoadSegments = 32;
+
+    /**
      * The hooks of the master playlist.
      *
      * @var Hooks

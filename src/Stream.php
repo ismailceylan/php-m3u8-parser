@@ -118,6 +118,13 @@ class Stream implements M3U8Serializable, JsonSerializable
 	private ?Hooks $hooks;
 
 	/**
+	 * The segments of the stream.
+	 *
+	 * @var Segments|null
+	 */
+	public ?SegmentsPlaylist $segments = null;
+
+	/**
 	 * The options of the stream.
 	 *
 	 * @var integer
@@ -219,6 +226,12 @@ class Stream implements M3U8Serializable, JsonSerializable
 	public function setUri( string $value ): self
 	{
 		$this->uri = new Uri( $value );
+
+		if( $this->options & MasterPlaylist::EagerLoadSegments )
+		{
+			return $this->withSegments();
+		}
+
 		return $this;
 	}
 
@@ -350,6 +363,22 @@ class Stream implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Initializes and loads segments for the stream.
+	 *
+	 * This method creates a new Segments instance and loads remote
+	 * segments from the resolved URL of the stream.
+	 *
+	 * @return self Returns the instance of the Stream class.
+	 */
+	public function withSegments(): self
+	{
+		$this->segments = new SegmentsPlaylist;
+		$this->segments->loadRemote( $this->getResolvedUrl());
+
+		return $this;
+	}
+
+	/**
 	 * Converts the stream to a string in the M3U8 format.
 	 *
 	 * The M3U8 format is '#EXT-X-STREAM-INF:<program-id>,<resolution>,<bandwidth>,<codecs>'.
@@ -475,6 +504,7 @@ class Stream implements M3U8Serializable, JsonSerializable
 			'resolution' => $this->resolution,
 			'programID' => $this->programID,
 			'frameRate' => $this->frameRate,
+			'segments' => $this->segments
 		];
 
 		if( ! ( $this->options & MasterPlaylist::HideNonStandardPropsInJson ))
@@ -541,6 +571,11 @@ class Stream implements M3U8Serializable, JsonSerializable
 			if( $data[ 'frameRate' ] === null )
 			{
 				unset( $data[ 'frameRate' ]);
+			}
+
+			if( $data[ 'segments' ]?->count() == 0 )
+			{
+				unset( $data[ 'segments' ]);
 			}
 		}
 
