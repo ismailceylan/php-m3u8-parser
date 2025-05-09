@@ -115,4 +115,18 @@ class AttributedTag
 			? explode( '|', $data )
 			: $data;
 	}
+
+	/**
+	 * Gets the value of an attribute.
+	 *
+	 * Retrieves the value of a given attribute by its key.
+	 * If the attribute does not exist, returns null.
+	 *
+	 * @param string $key The key of the attribute to retrieve.
+	 * @return string|array|null The value of the attribute, or null if it does not exist.
+	 */
+	public function get( string $key ): string|array|null
+	{
+		return $this->attributes[ $key ] ?? null;
+	}
 }
