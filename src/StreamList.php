@@ -40,6 +40,18 @@ class StreamList implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Retrieves a stream from the list of streams by its index.
+	 *
+	 * @param int $index The index of the stream to retrieve.
+	 * @return Stream The stream at the specified index.
+	 * @throws OutOfBoundsException If the index is out of range.
+	 */
+	public function get( int $index ): Stream
+	{
+		return $this->streams[ $index ];
+	}
+
+	/**
 	 * Attaches a media to each stream in the list of streams.
 	 *
 	 * @param Media $media The media to be attached.
