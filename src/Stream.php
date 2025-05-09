@@ -404,6 +404,19 @@ class Stream implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Converts the stream object to a string.
+	 *
+	 * This method returns the M3U8 representation of the stream by
+	 * calling the toM3U8 method.
+	 *
+	 * @return string The stream in M3U8 format.
+	 */
+	public function __toString(): string
+	{
+		return $this->toM3U8();
+	}
+
+	/**
 	 * Gets the formatted URI by triggering the 'format.toM3U8.segment-uri'
 	 * hook as a string.
 	 *
