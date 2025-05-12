@@ -289,6 +289,24 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
 	}
 
 	/**
+	 * Resolves the map URI using a predefined hook.
+	 *
+	 * @return ?string The resolved URI if available, otherwise the original map URI.
+	 */
+	public function getResolvedMapUri(): ?string
+	{
+		$resolvedUrl = $this->hooks->trigger( 'resolve.segment-uri',
+		[
+			$this->url,
+			$this->mapUri
+		]);
+
+		return $resolvedUrl
+			? $resolvedUrl[ 0 ]
+			: $this->mapUri;
+	}
+
+	/**
 	 * Retrieves the number of segments in the playlist.
 	 *
 	 * @return int The number of segments in the playlist.

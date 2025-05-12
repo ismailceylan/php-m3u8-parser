@@ -92,6 +92,29 @@ class Segment implements JsonSerializable, M3U8Serializable
 	}
 
 	/**
+	 * Retrieves the resolved URL of the segment.
+	 *
+	 * This method triggers the 'resolve.segment-uri' hook to attempt to resolve
+	 * the segment's URI. If a resolved URL is obtained, it returns the first
+	 * element of the resolved URL array. If not, it defaults to returning the
+	 * segment's original URI.
+	 *
+	 * @return string The resolved URL of the segment or the original URI if resolution fails.
+	 */
+	public function getResolvedUrl(): string
+	{
+		$resolvedUrl = $this->hooks->trigger( 'resolve.segment-uri',
+		[
+			$this->url,
+			$this->uri
+		]);
+
+		return $resolvedUrl
+			? $resolvedUrl[ 0 ]
+			: $this->uri;
+	}
+
+	/**
 	 * Converts the segment to a string in the M3U8 format.
 	 *
 	 * The format is '#EXTINF:<duration>,<title>\n<uri>'.
