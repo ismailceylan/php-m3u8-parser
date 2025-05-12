@@ -4,6 +4,7 @@ namespace Iceylan\M3U8;
 
 use JsonSerializable;
 use Iceylan\M3U8\Contracts\M3U8Serializable;
+use Iceylan\Urlify\Url;
 
 /**
  * Represents a segments playlist.
@@ -66,6 +67,33 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
 	 */
 	public ?string $mapByterange;
 
+	/**
+	 * The hooks of the segments playlist.
+	 *
+	 * @var Hooks|null
+	 */
+	private ?Hooks $hooks;
+
+	/**
+	 * The master playlist's url.
+	 *
+	 * @var Url|null
+	 */
+	public ?Url $url = null;
+
+	/**
+	 * Constructs a segments playlist.
+	 *
+	 * @param Hooks|null $hooks The hooks of the segments playlist.
+	 * @param Url|null $url The master playlist's url.
+	 * @return void
+	 */
+	public function __construct( ?Hooks $hooks, ?Url $url )
+	{
+		$this->hooks = $hooks;
+		$this->url = $url;
+	}
+
     /**
      * Checks if the given data contains the '#EXTINF:' tag.
      *
@@ -124,7 +152,14 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
 			// handle segment
             else if( str_starts_with( $line, '#EXTINF:' ))
             {
-				$this->push( $segment = new Segment( $line ));
+				$this->push( 
+					$segment = new Segment( 
+						raw: $line, 
+						hooks: $this->hooks, 
+						url: $this->url 
+					)
+				);
+
 				$segment->setUri( $lines[ $i + 1 ]);
 				$i++;
 			}

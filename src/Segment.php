@@ -3,6 +3,7 @@
 namespace Iceylan\M3U8;
 
 use JsonSerializable;
+use Iceylan\Urlify\Url;
 use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
@@ -32,12 +33,31 @@ class Segment implements JsonSerializable, M3U8Serializable
 	public ?Uri $uri;
 
 	/**
+	 * The hooks.
+	 *
+	 * @var Hooks|null
+	 */
+	private ?Hooks $hooks;
+
+	/**
+	 * The url.
+	 *
+	 * @var Url|null
+	 */
+	private ?Url $url;
+
+	/**
 	 * Constructs a new Segment object.
 	 *
 	 * @param string|null $raw The raw text of the segment.
+	 * @param Hooks|null $hooks The hooks.
+	 * @param Url|null $url The url.
 	 */
-	public function __construct( ?string $raw )
+	public function __construct( ?string $raw, ?Hooks $hooks, ?Url $url )
 	{
+		$this->hooks = $hooks;
+		$this->url = $url;
+	
 		if( $raw !== null )
 		{
 			$this->parse( $raw );
