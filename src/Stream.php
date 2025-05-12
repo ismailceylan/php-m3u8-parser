@@ -465,14 +465,14 @@ class Stream implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
-	 * Gets the resolved URL by triggering the 'resolve.segment-uri'
+	 * Gets the resolved URL by triggering the 'resolve.segment-playlist-uri'
 	 * hook as a string.
 	 *
 	 * @return string The resolved URL as a string.
 	 */
 	public function getResolvedUrl(): string
 	{
-		$resolvedUrl = $this->hooks->trigger( 'resolve.segment-uri',
+		$resolvedUrl = $this->hooks->trigger( 'resolve.segment-playlist-uri',
 		[
 			$this->url,
 			$this->uri
