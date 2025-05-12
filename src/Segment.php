@@ -78,7 +78,6 @@ class Segment implements JsonSerializable, M3U8Serializable
 		$this->title = trim( $title ) ?: null;
 	}
 
-
 	/**
 	 * Sets the URI for the segment.
 	 *
@@ -153,6 +152,7 @@ class Segment implements JsonSerializable, M3U8Serializable
 			'duration' => $this->duration,
 			'title' => $this->title,
 			'uri' => $this->uri,
+			'url' => $this->getResolvedUrl()
 		];
 	}
 

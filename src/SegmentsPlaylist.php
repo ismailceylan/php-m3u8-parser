@@ -395,6 +395,7 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
 			'version' => $this->version,
 			'mediaSequence' => $this->mediaSequence,
 			'mapUri' => $this->mapUri,
+			'mapUrl' => $this->getResolvedMapUri(),
 			'mapByterange' => $this->mapByterange,
 			'segments' => $this->toArray()
 		];
