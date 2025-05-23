@@ -1,5 +1,5 @@
 # M3U8 Parser and Generator Library for PHP
-With the help of this library, we can easily parse or generate M3U8 playlists for HTTP Live Streaming. It supports master playlists, media playlists, and all standard attributes.
+With the help of this library, we can easily parse or generate M3U8 playlists for HTTP Live Streaming. It supports master playlists, segments playlists, and all standard attributes.
 
 ## Installation
 Install via Composer:
@@ -12,7 +12,7 @@ composer require iceylan/m3u8
 ```php
 use Iceylan\M3U8\MasterPlaylist;
 
-$master = ( new MasterPlaylist( MasterPlaylist::PurifiedJson | MasterPlaylist::EagerLoadSegments ))
+$master = ( new MasterPlaylist( MasterPlaylist::EagerLoadSegments ))
 	->loadRemote( "https://video.domain.com/paths/master-playlist.m3u8" );
 ```
 
@@ -22,12 +22,53 @@ Master playlist is the playlist that contains all the stream variations. It is u
 
 In this library, we represent master playlists with the `MasterPlaylist` class. This class can also used to generate a master playlist from scratch.
 
-Some providers sometimes offer a different master playlist for each stream variation instead of embedding all stream variations in a single master playlist. This is also a valid situation.
+Some providers sometimes offer a different master playlist for each stream variation instead of embedding all stream variations in a single master playlist. This is also a valid situation. With the power of this library, we can merge multiple master playlists into one and work with them.
 
-After a playlist content is parsed, streams and medias can be accessed through the `MasterPlaylist` instance.
+After a playlist content is parsed, streams and medias can be accessed through the `MasterPlaylist` instance and we can also do some operations with them. Let's see what streams can do.
 
 #### Streams
-`streams` property holds an instance of `StreamList` class. It helps us to access all the streams in the master playlist and also helps us to add streams to the master playlist or attach medias with streams.
+`streams` property holds an instance of `StreamList` class. This is a list that holds the streams. It helps us to access all the streams in the master playlist.
+
+##### Getting All Streams As Array
+Sometimes we may only need the streams themselves as an array.
+
+```php
+$streams = $master->streams->all();
+// [Stream, Stream, ...]
+```
+
+##### Getting Stream By Index
+Sometimes we just need the stream in a certain position.
+
+```php
+$stream = $master->streams->get( 1 );
+```
+
+##### Checking If Streams Empty
+Sometimes it may happen that there are no streams defined in the master playlist.
+
+```php
+echo $master->streams->isEmpty();
+// true
+```
+
+##### Adding New Streams
+Sometimes we need to add a new stream to the list.
+
+```php
+$master->streams->push( new Stream());
+```
+
+##### Attaching Media To Streams
+Media definitions are kept on the same level as streams on the `MasterPlaylist`. But this is impractical because media definitions depend on streams. For this reason Each `Stream` keeps references to its associated media instances within itself.
+
+We can attach a `Media` instance to the `StreamList`.
+
+```php
+$master->streams->attach( new Media());
+```
+
+It's useful for adding new media definitions to an existing playlist by manually. If media definitions already exist in the master playlist, this is done for you under the hood when parsing the playlist.
 
 #### Stream
 streams represent videos. They provide general information about the video, such as resolution, codecs, frame rate and the url or uri for the playlist containing the video segments.
