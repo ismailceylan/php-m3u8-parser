@@ -5,7 +5,7 @@ This is a specialized list that manages the [stream](stream.md)s and allows us t
 If we want, we can instantiate the StreamList class directly.
 
 ```php
-$streams = new StreamList();
+$streams = new StreamList;
 ```
 
 But most of the time we don't need to, because we usually work directly with the [MasterPlaylist](master-playlist.md) class and it will generate a `StreamList` instance under the hood.
@@ -14,7 +14,7 @@ But most of the time we don't need to, because we usually work directly with the
 Sometimes we might need to add a new [stream](stream.md) to the list.
 
 ```php
-$streams->push( new Stream());
+$streams->push( new Stream );
 ```
 
 ### Getting All Streams As Array
@@ -46,7 +46,7 @@ echo $streams->isEmpty();
 Back to the stream list scenario, we can attach a `Media` instance to the whole `StreamList`. If the [group ID](group-id.md) of the media we gave, matches the [group ID](group-id.md)s of the streams in the list, it will only be attached to these streams.
 
 ```php
-$streams->attach( new Media());
+$streams->attach( new Media );
 ```
 
 It's useful for relating new media definitions to an existing playlist by manually. If media definitions already exist in the master playlist, this is done for you under the hood when parsing the playlist.
