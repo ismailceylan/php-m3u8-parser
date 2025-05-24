@@ -117,9 +117,9 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
      * Parses a master playlist content.
      *
      * @param string $content The content of the master playlist.
-     * @return void
+     * @return self
      */
-    public function parse( string $content ): void
+    public function parse( string $content ): self
     {
         $lines = explode( "\n", trim( $content ));
 
@@ -162,6 +162,8 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
                 // continue;
             }
         }
+
+        return $this;
     }
 
     /**

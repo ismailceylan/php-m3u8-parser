@@ -30,9 +30,9 @@ abstract class Playlist
 	 * Parse the content of the playlist.
 	 *
 	 * @param string $content
-	 * @return void
+	 * @return self
 	 */
-	abstract function parse( string $content ): void;
+	abstract function parse( string $content ): self;
 
 	/**
 	 * Load a playlist from a raw string content.
@@ -41,8 +41,9 @@ abstract class Playlist
 	 * 
 	 * @throws \Exception if the content does not start with the M3U8 magic bytes
 	 * @throws \Exception if the content does not pass the test implemented by the child class
+	 * @return self
 	 */
-	public function loadRaw( $content )
+	public function loadRaw( $content ): self
 	{
 		if( ! $this->hasMagicBytes( $content ))
 		{
@@ -55,7 +56,7 @@ abstract class Playlist
 			throw new \Exception( "M3U8 content that cannot be considered $className!" );
 		}
 
-		$this->parse( $content );
+		return $this->parse( $content );
 	}
 
 	/**
@@ -65,8 +66,9 @@ abstract class Playlist
 	 * @throws \Exception if the content does not start with the M3U8 magic bytes
 	 * @throws \Exception if the content does not pass the test implemented by the child class
 	 * @throws \Exception if the remote playlist could not be loaded
+	 * @return self
 	 */
-	public function loadRemote( string $url )
+	public function loadRemote( string $url ): self
 	{
 		$this->url = new Url( $url );
 
@@ -84,7 +86,7 @@ abstract class Playlist
 			throw new Exception( "Failed to load playlist from URL: $url" );
 		}
 
-		$this->loadRaw( $content );
+		return $this->loadRaw( $content );
 	}
 
 	/**
