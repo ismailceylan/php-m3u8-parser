@@ -307,6 +307,27 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
 	}
 
 	/**
+	 * Retrieves the formatted map URI by triggering the 'format.toM3U8.segment-uri' hook.
+	 *
+	 * If a formatted URI is obtained, it returns the first element of the formatted URI array.
+	 * If not, it defaults to returning the original map URI.
+	 *
+	 * @return ?string The formatted URI if available, otherwise the original map URI.
+	 */
+	public function getFormattedMapUri(): ?string
+	{
+		$formattedUrl = $this->hooks->trigger( 'format.toM3U8.segment-uri',
+		[
+			$this->url,
+			$this->mapUri
+		]);
+
+		return $formattedUrl
+			? $formattedUrl[ 0 ]
+			: $this->mapUri;
+	}
+
+	/**
 	 * Retrieves the number of segments in the playlist.
 	 *
 	 * @return int The number of segments in the playlist.
@@ -360,7 +381,7 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
 				? ',BYTERANGE="' . $this->mapByterange . '"'
 				: '';
 			
-			$meta[] = '#EXT-X-MAP:URI="' . $this->mapUri . '"' . $byterange;
+			$meta[] = '#EXT-X-MAP:URI="' . $this->getFormattedMapUri() . '"' . $byterange;
 		}
 
 		return "#EXTM3U\n" .

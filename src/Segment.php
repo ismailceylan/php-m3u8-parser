@@ -114,6 +114,30 @@ class Segment implements JsonSerializable, M3U8Serializable
 	}
 
 	/**
+	 * Retrieves the formatted URI of the segment.
+	 *
+	 * This method triggers the 'format.toM3U8.segment-uri' hook to attempt to
+	 * format the segment's URI. If a formatted URI is obtained, it returns the
+	 * first element of the formatted URI array. If not, it defaults to returning
+	 * the segment's original URI.
+	 *
+	 * @return string The formatted URI of the segment or the original URI if
+	 *     formatting fails.
+	 */
+	public function getFormattedUri(): string
+	{
+		$formattedUrl = $this->hooks->trigger( 'format.toM3U8.segment-uri',
+		[
+			$this->url,
+			$this->uri
+		]);
+
+		return $formattedUrl
+			? $formattedUrl[ 0 ]
+			: $this->uri;
+	}
+
+	/**
 	 * Converts the segment to a string in the M3U8 format.
 	 *
 	 * The format is '#EXTINF:<duration>,<title>\n<uri>'.
@@ -122,7 +146,7 @@ class Segment implements JsonSerializable, M3U8Serializable
 	 */
 	public function toM3U8(): string
 	{
-		return '#EXTINF:' . sprintf( '%.3f', $this->duration ) . ',' . $this->title . "\n" . $this->uri;
+		return '#EXTINF:' . sprintf( '%.3f', $this->duration ) . ',' . $this->title . "\n" . $this->getFormattedUri();
 	}
 
 	/**
