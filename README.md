@@ -21,6 +21,6 @@ $master = ( new MasterPlaylist( MasterPlaylist::EagerLoadSegments ))
 
 ## Structure
 * [`MasterPlaylist`](docs/MasterPlaylist.md): the playlist that contains all the stream and media variations
-* [`Stream`](docs/Stream.md): 
-* [`StreamList`](docs/StreamList.md):
-* [`MediaList`](docs/MediaList.md):
+* [`Stream`](docs/Stream.md): the stream that represents a video and its attributes and it's medias
+* [`StreamList`](docs/StreamList.md): the list of streams
+* [`MediaList`](docs/MediaList.md): the list of medias
