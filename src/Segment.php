@@ -47,14 +47,23 @@ class Segment implements JsonSerializable, M3U8Serializable
 	private ?Url $url;
 
 	/**
+	 * The options.
+	 *
+	 * @var int|null
+	 */
+	private ?int $options;
+	
+	/**
 	 * Constructs a new Segment object.
 	 *
 	 * @param string|null $raw The raw text of the segment.
 	 * @param Hooks|null $hooks The hooks.
 	 * @param Url|null $url The url.
+	 * @param int|null $options The options.
 	 */
-	public function __construct( ?string $raw, ?Hooks $hooks, ?Url $url )
+	public function __construct( ?string $raw, ?Hooks $hooks, ?Url $url, ?int $options )
 	{
+		$this->options = $options;
 		$this->hooks = $hooks;
 		$this->url = $url;
 	
@@ -189,6 +198,16 @@ class Segment implements JsonSerializable, M3U8Serializable
 	 */
 	public function jsonSerialize(): array
 	{
-		return $this->toArray();
+		$data = $this->toArray();
+
+		if( $this->options & MasterPlaylist::HideNullValuesInJson )
+		{
+			if( is_null( $data[ 'title' ]))
+			{
+				unset( $data[ 'title' ]);
+			}
+		}
+
+		return $data;
 	}
 }

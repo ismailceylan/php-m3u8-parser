@@ -372,7 +372,12 @@ class Stream implements M3U8Serializable, JsonSerializable
 	 */
 	public function withSegments(): self
 	{
-		$this->segments = new SegmentsPlaylist( hooks: $this->hooks, url: $this->url );
+		$this->segments = new SegmentsPlaylist(
+			url: $this->url,
+			hooks: $this->hooks,
+			options: $this->options
+		);
+
 		$this->segments->loadRemote( $this->getResolvedUrl());
 
 		return $this;

@@ -82,14 +82,23 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
 	public ?Url $url = null;
 
 	/**
+	 * The options of the segments playlist.
+	 *
+	 * @var ?int
+	 */
+	private ?int $options;
+
+	/**
 	 * Constructs a segments playlist.
 	 *
 	 * @param Hooks|null $hooks The hooks of the segments playlist.
 	 * @param Url|null $url The master playlist's url.
+	 * @param int|null $options The options of the segments playlist.
 	 * @return void
 	 */
-	public function __construct( ?Hooks $hooks, ?Url $url )
+	public function __construct( ?Hooks $hooks, ?Url $url, ?int $options )
 	{
+		$this->options = $options;
 		$this->hooks = $hooks;
 		$this->url = $url;
 	}
@@ -154,9 +163,10 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
             {
 				$this->push( 
 					$segment = new Segment( 
-						raw: $line, 
+						options: $this->options,
 						hooks: $this->hooks, 
-						url: $this->url 
+						url: $this->url,
+						raw: $line
 					)
 				);
 
@@ -411,16 +421,37 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
 	 */
 	public function jsonSerialize(): array
 	{
-		return [
-			'duration' => $this->duration,
-			'allowCache' => $this->allowCache,
+		$data =
+		[
 			'type' => $this->type,
-			'version' => $this->version,
-			'mediaSequence' => $this->mediaSequence,
 			'mapUri' => $this->mapUri,
 			'mapUrl' => $this->getResolvedMapUri(),
-			'mapByterange' => $this->mapByterange,
-			'segments' => $this->toArray()
+			'version' => $this->version,
+			'duration' => $this->duration,
+			'segments' => $this->toArray(),
+			'allowCache' => $this->allowCache,
+			'mediaSequence' => $this->mediaSequence,
+			'mapByterange' => $this->mapByterange
 		];
+
+		if( $this->options & MasterPlaylist::HideNullValuesInJson )
+		{
+			$targets =
+			[
+				'type', 'mapUri', 'mapUrl', 'version',
+				'duration', 'allowCache', 'mapByterange',
+				'mediaSequence'
+			];
+
+			foreach( $targets as $target )
+			{
+				if( is_null( $data[ $target ]))
+				{
+					unset( $data[ $target ]);
+				}
+			}
+		}
+
+		return $data;
 	}
 }
