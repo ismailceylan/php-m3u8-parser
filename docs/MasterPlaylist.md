@@ -130,7 +130,7 @@ $master = ( new MasterPlaylist )->merge(
 
 The merge method accepts any number of master playlists as arguments and merges their streams and medias into current master playlist.
 
-Please keep in mind that the group ID matching procedure will be run as a result of this operation. If you do not want the media in one master playlist to automatically match the streams in another master playlist, use the relevant setter methods to finalize the group arrangements in these master playlists before merging, and then finally merge them.
+Please keep in mind that the group ID matching procedure will be run as a result of this operation. If you do not want the media in one master playlist to automatically match the streams in another master playlist, use the relevant setter methods to finalize the group definitions in these master playlists before merging, and then finally merge them.
 
 If the provider has already defined group IDs that will not match between master playlists, you may not need to do anything.
 
@@ -165,18 +165,25 @@ https://video.domain.com/path/to/720p.m3u8
 This class supports direct json serialization. 
 
 ```php
-$master->streams->get( 1 )->withSegments();
-
 echo json_serialize( $master );
 ```
-
-This library doesn't load the segments playlist by default. We will look deeply into this later in [Stream](stream.md) documentation.
 
 The output is:
 
 ```json
 {
-  "medias": [],
+  "medias": [
+    {
+      "default": true,
+      "autoSelect": true,
+      "name": "English",
+      "language": "en",
+      "type": "audio",
+      "uri": "audio-en.m3u8",
+      "nonStandardProps": [],
+      "groupId": "audio-group-1"
+    }
+  ],
   "streams": [
     {
       "uri": "240p.av1.mp4.m3u8",
@@ -186,10 +193,7 @@ The output is:
       "codecs": null,
       "bandwidth": 162415,
       "averageBandwidth": null,
-      "resolution": {
-        "width": 426,
-        "height": 240
-      },
+      "resolution": { "width": 426, "height": 240 },
       "programID": "1",
       "frameRate": null,
       "segments": null,
@@ -205,10 +209,7 @@ The output is:
       "codecs": null,
       "bandwidth": 407523,
       "averageBandwidth": null,
-      "resolution": {
-        "width": 854,
-        "height": 480
-      },
+      "resolution": { "width": 854, "height": 480 },
       "programID": "1",
       "frameRate": null,
       "segments": {
@@ -247,10 +248,7 @@ The output is:
       "codecs": null,
       "bandwidth": 701183,
       "averageBandwidth": null,
-      "resolution": {
-        "width": 1280,
-        "height": 720
-      },
+      "resolution": { "width": 1280, "height": 720 },
       "programID": "1",
       "frameRate": null,
       "segments": null,
@@ -267,8 +265,8 @@ This library supports a few json modifiers that can be used to modify the output
 
 We can use these modifiers one at a time or combine them with bitwise operations to get the desired json output.
 
-##### HideMediasInJson
-In the master playlist we collect all the medias on the `medias` property. Becase medias are part of the master playlist. On the other hand, medias are attached to streams theoretically by group IDs. So we mimic that attachment by linking the medias to the streams if they're matched under the hood.
+##### MasterPlaylist::HideMediasInJson
+In the master playlist we collect all the medias on the `medias` property. Becase medias are part of the master playlist. On the other hand, medias are attached to streams theoretically by group IDs. So we mimic that attachment under the hood by linking the medias to the streams as audios or subtitles if they're matched.
 
 In light of this information, when we serialize the master playlist, the json output, by default, will contain all the medias duplicated, both those kept on the master playlist and those kept under streams. In some cases, this can be useful, but some cases, it can be a problem.
 
@@ -280,7 +278,18 @@ $master = new MasterPlaylist(
 );
 ```
 
-This way, only medias under streams will appear in the JSON output. As a result of this process, any media not owned by a stream will be lost. Therefore, you should use this feature with caution. If you need to access ownerless medias in the JSON output, you should not use this modifier.
+This way, only medias under streams will appear in the JSON output under audios or subtitles properties. As a result of this process, any media not owned by a stream will be lost. Therefore, you should use this feature with caution. If you need to access ownerless medias in the JSON output, you should not use this modifier.
+
+##### MasterPlaylist::HideNonStandardPropsInJson
+The m3u format provides the features of and object with properties. Some of these properties are standard, and this library defines them natively on its classes. However, since you are not prohibited from creating your own properties in m3u, this library collects them under a special property so that you can access them.
+
+If you are only working with standard features, you can hide this property and save a little space in the JSON output.
+
+```php
+$master = new MasterPlaylist(
+    options: MasterPlaylist::HideNonStandardPropsInJson
+);
+```
 
 ### Properties
 Master playlist has two properties that hold the streams and medias. These properties are both of type `StreamList` and `MediaList`. Through these specialized list classes, we can perform batch operations on the streams and medias. By accessing the properties we can access all streams and medias in the master playlist.
