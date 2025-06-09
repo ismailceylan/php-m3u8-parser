@@ -7,6 +7,14 @@ use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
  * Represents a list of medias.
+ * 
+ * @todo add count method to get the number of streams
+ * @todo implement countable interface
+ * @todo add remove method to remove by given stream instance or index number
+ * @todo add unshift method to add stream to the beginning
+ * @todo add shift method to remove and return stream from the beginning
+ * @todo add pop method to remove and return stream from the ending
+ * @todo add clean method to empty the entire list
  */
 class MediaList implements M3U8Serializable, JsonSerializable
 {

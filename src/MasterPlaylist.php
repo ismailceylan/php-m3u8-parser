@@ -8,6 +8,10 @@ use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
  * Represent a master playlist.
+ * 
+ * @todo add remove method by stream or media instances
+ * @todo add count method and return total stream and media counts
+ * @todo implement countable interface
  */
 class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializable
 {
@@ -191,6 +195,8 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
      *
      * @param Stream|Media $entity The stream or media to be added.
      * @return self Returns the instance of the MasterPlaylist class.
+     * 
+     * @todo add the ability to add streams and media in bulk with array argument
      */
     public function push( Stream|Media $entity ): self
     {

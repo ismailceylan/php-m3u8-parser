@@ -66,6 +66,7 @@ class ObjectSet implements JsonSerializable
 	 * Gets the number of objects in the set.
 	 *
 	 * @return int The number of objects in the set.
+	 * @todo rename method name to count
 	 */
 	public function length(): int
 	{
