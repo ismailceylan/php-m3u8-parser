@@ -99,9 +99,9 @@ class Stream implements M3U8Serializable, JsonSerializable
 	/**
 	 * The sync medias callback.
 	 *
-	 * @var Closure
+	 * @var ?Closure
 	 */
-	private Closure $syncMedias;
+	private ?Closure $syncMedias;
 
 	/**
 	 * The full url for the stream.
@@ -135,16 +135,16 @@ class Stream implements M3U8Serializable, JsonSerializable
 	 * Construct a stream from a raw M3U8 stream syntax.
 	 *
 	 * @param string $rawStreamSyntax The raw M3U8 EXT-X-STREAM-INF syntax.
-	 * @param Closure $syncMedias The callback to sync the medias.
-	 * @param Url|null $url The full url for the stream.
-	 * @param Hooks|null $hooks The hooks of the stream.
+	 * @param ?Closure|null $syncMedias The callback to sync the medias.
+	 * @param ?Url|null $url The full url for the stream.
+	 * @param ?Hooks|null $hooks The hooks of the stream.
 	 * @param int $options The options of the stream.
 	 */
 	public function __construct(
 		string $rawStreamSyntax = '',
-		Closure $syncMedias,
-		?Url $url,
-		?Hooks $hooks,
+		?Closure $syncMedias = null,
+		?Url $url = null,
+		?Hooks $hooks = null,
 		int $options = 0
 	)
 	{
@@ -453,6 +453,11 @@ class Stream implements M3U8Serializable, JsonSerializable
 	 */
 	private function getFormattedUri(): string
 	{
+		if( ! $this->hooks )
+		{
+			return $this->uri ?? '';
+		}
+
 		$formattedUrl = $this->hooks->trigger( 'format.toM3U8.segment-uri',
 		[
 			$this->url,
@@ -472,6 +477,11 @@ class Stream implements M3U8Serializable, JsonSerializable
 	 */
 	public function getResolvedUrl(): string
 	{
+		if( ! $this->hooks )
+		{
+			return $this->uri ?? '';
+		}
+
 		$resolvedUrl = $this->hooks->trigger( 'resolve.segment-playlist-uri',
 		[
 			$this->url,
