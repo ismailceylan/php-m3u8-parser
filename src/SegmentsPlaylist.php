@@ -109,9 +109,9 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
      * Parses the given content into a segments playlist.
      *
      * @param string $content The content of the playlist.
-     * @return void
+     * @return self
      */
-	public function parse( string $content ): void
+	public function parse( string $content ): self
 	{
 		$lines = explode( "\n", trim( $content ));
 
@@ -169,6 +169,8 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
 				
 			}
 		}
+
+		return $this;
 	}
 
 	/**
