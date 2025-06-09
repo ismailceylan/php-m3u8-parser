@@ -56,11 +56,7 @@ $lq_eng_sound = ( new Media )
 This time we created an audio, again in English, but in the stereo group. Now we are ready to place all pieces on the master playlist.
 
 ```php
-$master
-    ->push( $stream )
-    ->push( $lq_eng_sound )
-    ->push( $hq_eng_sound )
-    ->push( $subtitle );
+$master->push([ $stream, $lq_eng_sound, $hq_eng_sound, $subtitle ]);
 ```
 
 The push method recognizes the type of object being sent and adds it to the list held on the streams or medias properties on `MasterPlaylist`. 
@@ -127,14 +123,43 @@ This library makes it easy to create multiple master playlists and merge them in
 
 ```php
 $master = ( new MasterPlaylist )->merge(
-    ( new MasterPlaylist )->loadRemote( "https://video.domain.com/path/to/master-playlist-1.m3u8" ),
-    ( new MasterPlaylist )->loadRemote( "https://video.domain.com/path/to/master-playlist-2.m3u8" )
+    ( new MasterPlaylist )->loadRemote( "https://video.domain.com/path/to/720p.m3u8" ),
+    ( new MasterPlaylist )->loadRemote( "https://video.domain.com/path/to/1080p.m3u8" )
 );
 ```
 
 The merge method returns a new master playlist that contains all the streams and medias from the given master playlists.
 
+### Exporting Master Playlists (Serialization)
+Some times we may need to export the master playlist to a file or response a HTTP request with the m3u8 content.
+
+```php
+echo $master->toM3U8();
+```
+
+The `toM3U8` method returns the m3u8 content as a string. 
+
+The output is:
+
+```m3u8
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:1
+#EXT-X-TARGETDURATION:2
+#EXT-X-PLAYLIST-TYPE:VOD
+
+#EXT-X-STREAM-INF:CODECS="avc1.42E01E,mp4a.40.2",RESOLUTION=1920x1080,AUDIO="5.1-surround",SUBTITLES="srt"
+https://video.domain.com/path/to/1080p.m3u8
+#EXT-X-STREAM-INF:CODECS="avc1.42E01E,mp4a.40.2",RESOLUTION=1280x720,AUDIO="5.1-surround",SUBTITLES="srt"
+https://video.domain.com/path/to/720p.m3u8
+
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="5.1-surround",NAME="English",LANGUAGE="en",DEFAULT=YES,AUTOSELECT=YES,URI="audio-en.m3u8"
+#EXT-X-MEDIA:TYPE=SUBTITLE,GROUP-ID="srt",NAME="Spanish",LANGUAGE="es",AUTOSELECT=NO,URI="es.srt"
+```
+
 ### Properties
+Master playlist has two properties that hold the streams and medias. These properties are both of type `StreamList` and `MediaList`. Through these specialized list classes, we can perform batch operations on the streams and medias. By accessing the properties we can access all streams and medias in the master playlist.
+
 #### Streams
 `streams` property holds an instance of [`StreamList`](StreamList.md) class. This is a specialized list that manages the streams and allows us to perform batch operations on them.
 
