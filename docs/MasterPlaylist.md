@@ -119,7 +119,7 @@ $master = ( new MasterPlaylist )->loadRemote(
 The given url is then also used to resolve the relative uri's in the master playlist and segments playlist.
 
 ### Merging Master Playlists
-This library makes it easy to create multiple master playlists and merge them into one.
+Some providers sometimes offer a different master playlist for each stream variation instead of embedding all stream variations in a single master playlist. This is also a valid situation. In this case we can merge multiple master playlists into one and access all streams and medias in a single master playlist.
 
 ```php
 $master = ( new MasterPlaylist )->merge(
@@ -128,7 +128,11 @@ $master = ( new MasterPlaylist )->merge(
 );
 ```
 
-The merge method returns a new master playlist that contains all the streams and medias from the given master playlists.
+The merge method accepts any number of master playlists as arguments and merges their streams and medias into current master playlist.
+
+Please keep in mind that the group ID matching procedure will be run as a result of this operation. If you do not want the media in one master playlist to automatically match the streams in another master playlist, use the relevant setter methods to finalize the group arrangements in these master playlists before merging, and then finally merge them.
+
+If the provider has already defined group IDs that will not match between master playlists, you may not need to do anything.
 
 ### Exporting Master Playlists (Serialization)
 Some times we may need to export the master playlist to a file or response a HTTP request with the m3u8 content.
@@ -156,6 +160,127 @@ https://video.domain.com/path/to/720p.m3u8
 #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="5.1-surround",NAME="English",LANGUAGE="en",DEFAULT=YES,AUTOSELECT=YES,URI="audio-en.m3u8"
 #EXT-X-MEDIA:TYPE=SUBTITLE,GROUP-ID="srt",NAME="Spanish",LANGUAGE="es",AUTOSELECT=NO,URI="es.srt"
 ```
+
+### JSON Serialization
+This class supports direct json serialization. 
+
+```php
+$master->streams->get( 1 )->withSegments();
+
+echo json_serialize( $master );
+```
+
+This library doesn't load the segments playlist by default. We will look deeply into this later in [Stream](stream.md) documentation.
+
+The output is:
+
+```json
+{
+  "medias": [],
+  "streams": [
+    {
+      "uri": "240p.av1.mp4.m3u8",
+      "url": "https://video-cf.xhcdn.com/eP6ub%2F8tcJS6He4htvSbnpM%2F0OFlf3rfLuECyhnL6VI%3D/104/1745946000/media=hls4/multi=256x144:144p:,426x240:240p:,854x480:480p:,1280x720:720p:,1920x1080:1080p:/024/096/596/240p.av1.mp4.m3u8",
+      "audios": [],
+      "subtitles": [],
+      "codecs": null,
+      "bandwidth": 162415,
+      "averageBandwidth": null,
+      "resolution": {
+        "width": 426,
+        "height": 240
+      },
+      "programID": "1",
+      "frameRate": null,
+      "segments": null,
+      "nonStandardProps": [],
+      "audioGroup": null,
+      "subtitleGroup": null
+    },
+    {
+      "uri": "480p.av1.mp4.m3u8",
+      "url": "https://video-cf.xhcdn.com/eP6ub%2F8tcJS6He4htvSbnpM%2F0OFlf3rfLuECyhnL6VI%3D/104/1745946000/media=hls4/multi=256x144:144p:,426x240:240p:,854x480:480p:,1280x720:720p:,1920x1080:1080p:/024/096/596/480p.av1.mp4.m3u8",
+      "audios": [],
+      "subtitles": [],
+      "codecs": null,
+      "bandwidth": 407523,
+      "averageBandwidth": null,
+      "resolution": {
+        "width": 854,
+        "height": 480
+      },
+      "programID": "1",
+      "frameRate": null,
+      "segments": {
+        "type": "VOD",
+        "mapUri": "480p.av1.mp4/init-v1-a1.mp4",
+        "mapUrl": "https://video-cf.xhcdn.com/eP6ub%2F8tcJS6He4htvSbnpM%2F0OFlf3rfLuECyhnL6VI%3D/104/1745946000/media=hls4/multi=256x144:144p:,426x240:240p:,854x480:480p:,1280x720:720p:,1920x1080:1080p:/024/096/596/480p.av1.mp4/init-v1-a1.mp4",
+        "version": "6",
+        "duration": 5,
+        "segments": [
+          {
+            "duration": 4,
+            "title": null,
+            "uri": "480p.av1.mp4/seg-1-v1-a1.m4s",
+            "url": "https://video-cf.xhcdn.com/eP6ub%2F8tcJS6He4htvSbnpM%2F0OFlf3rfLuECyhnL6VI%3D/104/1745946000/media=hls4/multi=256x144:144p:,426x240:240p:,854x480:480p:,1280x720:720p:,1920x1080:1080p:/024/096/596/480p.av1.mp4/seg-1-v1-a1.m4s"
+          },
+          {
+            "duration": 4,
+            "title": null,
+            "uri": "480p.av1.mp4/seg-2-v1-a1.m4s",
+            "url": "https://video-cf.xhcdn.com/eP6ub%2F8tcJS6He4htvSbnpM%2F0OFlf3rfLuECyhnL6VI%3D/104/1745946000/media=hls4/multi=256x144:144p:,426x240:240p:,854x480:480p:,1280x720:720p:,1920x1080:1080p:/024/096/596/480p.av1.mp4/seg-2-v1-a1.m4s"
+          }
+        ],
+        "allowCache": true,
+        "mediaSequence": 1,
+        "mapByterange": null
+      },
+      "nonStandardProps": [],
+      "audioGroup": null,
+      "subtitleGroup": null
+    },
+    {
+      "uri": "720p.av1.mp4.m3u8",
+      "url": "https://video-cf.xhcdn.com/eP6ub%2F8tcJS6He4htvSbnpM%2F0OFlf3rfLuECyhnL6VI%3D/104/1745946000/media=hls4/multi=256x144:144p:,426x240:240p:,854x480:480p:,1280x720:720p:,1920x1080:1080p:/024/096/596/720p.av1.mp4.m3u8",
+      "audios": [],
+      "subtitles": [],
+      "codecs": null,
+      "bandwidth": 701183,
+      "averageBandwidth": null,
+      "resolution": {
+        "width": 1280,
+        "height": 720
+      },
+      "programID": "1",
+      "frameRate": null,
+      "segments": null,
+      "nonStandardProps": [],
+      "audioGroup": null,
+      "subtitleGroup": null
+    }
+  ]
+}
+```
+
+#### JSON Modifiers
+This library supports a few json modifiers that can be used to modify the output of the json representation of the master playlist.
+
+We can use these modifiers one at a time or combine them with bitwise operations to get the desired json output.
+
+##### HideMediasInJson
+In the master playlist we collect all the medias on the `medias` property. Becase medias are part of the master playlist. On the other hand, medias are attached to streams theoretically by group IDs. So we mimic that attachment by linking the medias to the streams if they're matched under the hood.
+
+In light of this information, when we serialize the master playlist, the json output, by default, will contain all the medias duplicated, both those kept on the master playlist and those kept under streams. In some cases, this can be useful, but some cases, it can be a problem.
+
+The `HideMediasInJson` modifier will hide the medias from the json output.
+
+```php
+$master = new MasterPlaylist(
+    options: MasterPlaylist::HideMediasInJson
+);
+```
+
+This way, only medias under streams will appear in the JSON output. As a result of this process, any media not owned by a stream will be lost. Therefore, you should use this feature with caution. If you need to access ownerless medias in the JSON output, you should not use this modifier.
 
 ### Properties
 Master playlist has two properties that hold the streams and medias. These properties are both of type `StreamList` and `MediaList`. Through these specialized list classes, we can perform batch operations on the streams and medias. By accessing the properties we can access all streams and medias in the master playlist.
