@@ -217,6 +217,29 @@ class Stream implements M3U8Serializable, JsonSerializable
 		return $this;
 	}
 
+	/**
+	 * Sets the URL of the stream.
+	 *
+	 * If the given url is an instance of {@see Url}, it is set as the URL of the stream.
+	 * Otherwise, if the given url is a string, it is parsed and set as the URL of the stream.
+	 *
+	 * @param string|Url $url The URL to set, or a string to parse and set as the URL.
+	 * @return self The current instance of the Stream class for method chaining.
+	 */
+	public function setBaseUrl( string|Url $url ): self
+	{
+		if( $url instanceof Url )
+		{
+			$this->url = $url;
+		}
+		else if( is_string( $url ))
+		{
+			$this->url = new Url( $url );
+		}
+
+		return $this;
+	}
+
     /**
      * Sets the URI attribute of the stream.
      *
