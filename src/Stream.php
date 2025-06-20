@@ -279,7 +279,7 @@ class Stream implements M3U8Serializable, JsonSerializable
 	 */
 	public function setBandwidth( int $bandwidth ): self
 	{
-		$this->bandwidth = new Bandwidth( $bandwidth );
+		$this->bandwidth = new Bandwidth( $bandwidth, 'BANDWIDTH' );
 		return $this;
 	}
 
@@ -291,7 +291,7 @@ class Stream implements M3U8Serializable, JsonSerializable
 	 */
 	public function setAverageBandwidth( int $averageBandwidth ): self
 	{
-		$this->averageBandwidth = new Bandwidth( $averageBandwidth );
+		$this->averageBandwidth = new Bandwidth( $averageBandwidth, 'AVERAGE-BANDWIDTH' );
 		return $this;
 	}
 

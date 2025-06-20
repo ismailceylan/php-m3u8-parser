@@ -18,13 +18,22 @@ class Bandwidth implements JsonSerializable, M3U8Serializable
 	public int $bps = 0;
 
 	/**
+	 * The name of the bandwidth value.
+	 *
+	 * @var string|null
+	 */
+	public ?string $key = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param int|string $bitsPerSecond The bandwidth value in bits per second.
+	 * @param ?string $key The name of the bandwidth value.
 	 */
-	public function __construct( int|string $bitsPerSecond )
+	public function __construct( int|string $bitsPerSecond, ?string $key )
 	{
 		$this->bps = (int) $bitsPerSecond;
+		$this->key = $key;
 	}
 
 	/**
@@ -113,12 +122,12 @@ class Bandwidth implements JsonSerializable, M3U8Serializable
 	/**
 	 * Converts the bandwidth value to a string in the M3U8 format.
 	 *
-	 * The M3U8 format is 'BANDWIDTH=<value>'.
+	 * The M3U8 format is '<key>=<value>'.
 	 *
 	 * @return string The bandwidth value in the M3U8 format.
 	 */
 	public function toM3U8(): string
 	{
-		return 'BANDWIDTH=' . $this->bps;
+		return "$this->key=" . $this->bps;
 	}
 }
