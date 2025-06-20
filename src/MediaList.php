@@ -42,7 +42,7 @@ class MediaList implements M3U8Serializable, JsonSerializable
 	 *
 	 * @return Media[] The list of medias.
 	 */
-	public function getMedias(): array
+	public function toArray(): array
 	{
 		return $this->medias;
 	}
@@ -91,7 +91,10 @@ class MediaList implements M3U8Serializable, JsonSerializable
 	{
 		return implode(
 			"\n",
-			array_map( fn( $media ) => $media->toM3U8(), $this->medias )
+			array_map(
+				fn( $media ) => $media->toM3U8(),
+				$this->toArray()
+			)
 		);
 	}
 }

@@ -273,7 +273,7 @@ $master = new MasterPlaylist(
 );
 ```
 
-This way, only medias under streams will appear in the JSON output under audios or subtitles properties. As a result of this process, any media not owned by a stream will be lost. Therefore, you should use this feature with caution. If you need to access ownerless medias in the JSON output, you should not use this modifier.
+This way, only medias under streams will appear in the JSON output under audios or subtitles properties. As a result of this process, any media not owned by a stream will be lost. Therefore, you should use this feature with caution. If you need to access ownerless medias in the JSON output, you shouldn't use this modifier.
 
 ##### MasterPlaylist::HideNonStandardPropsInJson
 The m3u format provides the features of an object with properties. Some of these properties are standard, and this library defines them natively on its classes. However, since you are not prohibited from creating your own properties in m3u, this library collects them under a special property so that you can access them.
@@ -342,7 +342,7 @@ $master = new MasterPlaylist(
 ```
 
 ##### MasterPlaylist::EagerLoadSegments
-This modifier activates the eager loading of segments. If you want to load the segments of all the streams in the master playlist at once, you can use this modifier.
+This modifier activates the eager loading of segments. If you want to load the segments of all the streams in the master playlist at once, you can use this modifier. With other words, this modifier lets you load the segment playlists of streams eagerly.
 
 ```php
 $master = new MasterPlaylist(
