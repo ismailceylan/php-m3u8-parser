@@ -414,6 +414,20 @@ class Stream implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Registers a hook.
+	 *
+	 * @param string $event The name of the event to be hooked.
+	 * @param callable $listener The callable to be called when the event is triggered.
+	 * @param int $priority [optional] The priority of the hook, lower values are called first.
+	 * @return self The instance of the Stream class.
+	 */
+	public function hook( string $event, callable $listener, int $priority = 0 ): self
+	{
+		$this->hooks->add( $event, $listener, $priority );
+		return $this;
+	}
+
+	/**
 	 * Converts the stream to a string in the M3U8 format.
 	 *
 	 * The M3U8 format is '#EXT-X-STREAM-INF:<program-id>,<resolution>,<bandwidth>,<codecs>'.
