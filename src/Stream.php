@@ -152,7 +152,7 @@ class Stream implements M3U8Serializable, JsonSerializable
 		$this->subtitles = new ObjectSet;
 		$this->syncMedias = $syncMedias;
 		$this->url = $url;
-		$this->hooks = $hooks;
+		$this->hooks = $hooks ?? new Hooks;
 		$this->options = $options;
 
 		if( $rawStreamSyntax )
@@ -395,13 +395,20 @@ class Stream implements M3U8Serializable, JsonSerializable
 	 */
 	public function withSegments(): self
 	{
+		$url = $this->getResolvedUrl();
+
+		if( ! $url )
+		{
+			return $this;
+		}
+
 		$this->segments = new SegmentsPlaylist(
 			url: $this->url,
 			hooks: $this->hooks,
 			options: $this->options
 		);
 
-		$this->segments->loadRemote( $this->getResolvedUrl());
+		$this->segments->loadRemote( $url );
 
 		return $this;
 	}
