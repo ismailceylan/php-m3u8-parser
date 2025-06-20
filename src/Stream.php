@@ -340,8 +340,8 @@ class Stream implements M3U8Serializable, JsonSerializable
 	public function setAudioGroup( string $audioGroup ): self
 	{
 		$this->audioGroup = new GroupId( $audioGroup, 'AUDIO' );
-		$this->syncMedias->__invoke( $this );
-		
+		$this->syncMedias?->__invoke( $this );
+
 		return $this;
 	}
 
@@ -354,7 +354,7 @@ class Stream implements M3U8Serializable, JsonSerializable
 	public function setSubtitleGroup( string $subtitleGroup ): self
 	{
 		$this->subtitleGroup = new GroupId( $subtitleGroup, 'SUBTITLES' );
-		$this->syncMedias->__invoke( $this );
+		$this->syncMedias?->__invoke( $this );
 		
 		return $this;
 	}
