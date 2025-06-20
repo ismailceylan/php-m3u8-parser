@@ -21,7 +21,7 @@ $master->medias->push( new Media );
 Sometimes we may only need the medias themselves as an array.
 
 ```php
-$medias = $master->medias->all();
+$medias = $master->medias->toArray();
 // [Media, Media, ...]
 ```
 
@@ -43,7 +43,7 @@ echo $master->medias->isEmpty();
 ### Attaching Media To Medias
 [Media](media.md) definitions are kept on the same level as medias on the `MasterPlaylist`. But this is not enough because media definitions depend on medias. For this reason Each `Media` keeps references to its associated media instances within itself.
 
-Back to the media list scenario, we can attach a `Media` instance to the whole `MediaList`. If the [group ID](group-id.md) of the media we gave, matches the [group ID](group-id.md)s of the medias in the list, it will only be attached to these medias.
+Back to the media list scenario, we can also attach a `Media` instance to the whole `MediaList`. If the [group ID](group-id.md) of the media we gave, matches the [group ID](group-id.md)s of the medias in the list, it will only be attached to these medias.
 
 ```php
 $master->medias->attach( new Media );
@@ -86,4 +86,4 @@ The output is:
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1302491,RESOLUTION=1280x720,CODECS="mp4a.40.2,avc1.4d4015"
 ```
 
-Actually the class doesn't have a special M3U8 scheme. It just triggers the `toM3U8` method of all the medias it has, concatenates them with the newline character and returns it.
+Actually the class doesn't have a special M3U8 scheme. It just triggers the [`toM3U8`](Media.md#m3u8-serialization) method of all the medias it has, concatenates them with the newline character and returns it.

@@ -21,7 +21,7 @@ $streams->push( new Stream );
 Sometimes we may only need the streams themselves as an array.
 
 ```php
-$streams = $streams->all();
+$streams = $streams->toArray();
 // [Stream, Stream, ...]
 ```
 
@@ -43,7 +43,7 @@ echo $streams->isEmpty();
 ### Attaching Media To Streams
 [Media](media.md) definitions are kept on the same level as streams on the `MasterPlaylist`. But this is not enough because media definitions depend on streams. For this reason Each `Stream` keeps references to its associated media instances within itself.
 
-Back to the stream list scenario, we can attach a `Media` instance to the whole `StreamList`. If the [group ID](group-id.md) of the media we gave, matches the [group ID](group-id.md)s of the streams in the list, it will only be attached to these streams.
+Back to the stream list scenario, we can also attach a `Media` instance to the whole `StreamList`. If the [group ID](group-id.md) of the media we gave, matches the [group ID](group-id.md)s of the streams in the list, it will only be attached to these streams.
 
 ```php
 $streams->attach( new Media );
@@ -86,4 +86,4 @@ The output is:
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1302491,RESOLUTION=1280x720,CODECS="mp4a.40.2,avc1.4d4015"
 ```
 
-Actually the class doesn't have a special M3U8 scheme. It just triggers the `toM3U8` method of all the streams it has, concatenates them with the newline character and returns it.
+Actually the class doesn't have a special M3U8 scheme. It just triggers the [`toM3U8`](Stream.md#m3u8-serialization) method of all the streams it has, concatenates them with the newline character and returns it.
