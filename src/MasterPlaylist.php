@@ -181,7 +181,7 @@ class MasterPlaylist extends Playlist implements M3U8Serializable, JsonSerializa
      */
     private function syncStreamMedias( Stream $stream )
     {
-        foreach( $this->medias->getMedias() as $media )
+        foreach( $this->medias->toArray() as $media )
         {
             $stream->push( $media );
         }
