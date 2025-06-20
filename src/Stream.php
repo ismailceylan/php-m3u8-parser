@@ -515,7 +515,7 @@ class Stream implements M3U8Serializable, JsonSerializable
 
 		return $formattedUrl
 			? $formattedUrl[ 0 ]
-			: $this->uri;
+			: $this->uri ?? '';
 	}
 
 	/**
