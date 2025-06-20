@@ -147,11 +147,6 @@ The output is:
 
 ```m3u8
 #EXTM3U
-#EXT-X-VERSION:3
-#EXT-X-MEDIA-SEQUENCE:1
-#EXT-X-TARGETDURATION:2
-#EXT-X-PLAYLIST-TYPE:VOD
-
 #EXT-X-STREAM-INF:CODECS="avc1.42E01E,mp4a.40.2",RESOLUTION=1920x1080,AUDIO="5.1-surround",SUBTITLES="srt"
 https://video.domain.com/path/to/1080p.m3u8
 #EXT-X-STREAM-INF:CODECS="avc1.42E01E,mp4a.40.2",RESOLUTION=1280x720,AUDIO="5.1-surround",SUBTITLES="srt"
@@ -266,7 +261,7 @@ This library supports a few json modifiers that can be used to modify the output
 We can use these modifiers one at a time or combine them with bitwise operations to get the desired json output.
 
 ##### MasterPlaylist::HideMediasInJson
-In the master playlist we collect all the medias on the `medias` property. Becase medias are part of the master playlist. On the other hand, medias are attached to streams theoretically by group IDs. So we mimic that attachment under the hood by linking the medias to the streams as audios or subtitles if they're matched.
+In the master playlist we collect all the medias on the `medias` property. Because medias are part of the master playlist. On the other hand, medias are attached to streams theoretically by group IDs in m3u files. So we mimic that attachment under the hood by linking the medias to the streams as audios or subtitles if they're matched.
 
 In light of this information, when we serialize the master playlist, the json output, by default, will contain all the medias duplicated, both those kept on the master playlist and those kept under streams. In some cases, this can be useful, but some cases, it can be a problem.
 
@@ -281,7 +276,7 @@ $master = new MasterPlaylist(
 This way, only medias under streams will appear in the JSON output under audios or subtitles properties. As a result of this process, any media not owned by a stream will be lost. Therefore, you should use this feature with caution. If you need to access ownerless medias in the JSON output, you should not use this modifier.
 
 ##### MasterPlaylist::HideNonStandardPropsInJson
-The m3u format provides the features of and object with properties. Some of these properties are standard, and this library defines them natively on its classes. However, since you are not prohibited from creating your own properties in m3u, this library collects them under a special property so that you can access them.
+The m3u format provides the features of an object with properties. Some of these properties are standard, and this library defines them natively on its classes. However, since you are not prohibited from creating your own properties in m3u, this library collects them under a special property so that you can access them.
 
 If you are only working with standard features, you can hide this property and save a little space in the JSON output.
 
@@ -290,6 +285,72 @@ $master = new MasterPlaylist(
     options: MasterPlaylist::HideNonStandardPropsInJson
 );
 ```
+
+##### MasterPlaylist::HideGroupsInJson
+Streams declare the media groups they want to own, and medias declare the group they belong to. This library automatically matches these two definitions with each other using this information. When JSON output is generated, medias are stored under streams as "audios" or "subtitles". The entire hierarchy is available and clear under JSON. If this hierarchy is sufficient, you may not need the group IDs anymore. In this case, you can reduce the output size by removing them from the JSON output.
+
+```php
+$master = new MasterPlaylist(
+    options: MasterPlaylist::HideGroupsInJson
+);
+```
+
+As a result of this operation, the `audioGroup` and `subtitleGroup` properties on the streams, and the `groupId` property on the medias are removed from the JSON.
+
+##### MasterPlaylist::HideNullValuesInJson
+We defined the known attributes in the m3u format as physical properties in this library, but since some of them are not required by the m3u format, we set the default value of such properties to `null`.
+
+The `HideNullValuesInJson` modifier will remove the properties that have `null` values from the JSON output.
+
+```php
+$master = new MasterPlaylist(
+    options: MasterPlaylist::HideNullValuesInJson
+);
+```
+
+This way, we can reduce the size of the JSON output a little bit.
+
+##### MasterPlaylist::HideEmptyArraysInJson
+The `HideEmptyArraysInJson` modifier will remove the properties that have empty arrays like `audios`, `subtitles`, `streams` and `medias` as values from the JSON output.
+
+```php
+$master = new MasterPlaylist(
+    options: MasterPlaylist::HideEmptyArraysInJson
+);
+```
+
+##### MasterPlaylist::PurifiedJson
+This modifier activates all of the above modifiers at once. So, if you want to activate all JSON-related modifiers, instead of writing the following code:
+
+```php
+$master = new MasterPlaylist(
+    options:
+        MasterPlaylist::HideMediasInJson |
+        MasterPlaylist::HideNonStandardPropsInJson |
+        MasterPlaylist::HideGroupsInJson |
+        MasterPlaylist::HideNullValuesInJson |
+        MasterPlaylist::HideEmptyArraysInJson
+);
+```
+
+You can write the following code:
+
+```php
+$master = new MasterPlaylist(
+    options: MasterPlaylist::PurifiedJson
+);
+```
+
+##### MasterPlaylist::EagerLoadSegments
+This modifier activates the eager loading of segments. If you want to load the segments of all the streams in the master playlist at once, you can use this modifier.
+
+```php
+$master = new MasterPlaylist(
+    options: MasterPlaylist::EagerLoadSegments
+);
+```
+
+If you just want to load the segments of a specific stream, you can use the [`withSegments`](Stream.md#loading-segments) method on the specific stream.
 
 ### Properties
 Master playlist has two properties that hold the streams and medias. These properties are both of type `StreamList` and `MediaList`. Through these specialized list classes, we can perform batch operations on the streams and medias. By accessing the properties we can access all streams and medias in the master playlist.
