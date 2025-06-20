@@ -123,4 +123,106 @@ https://video.domain.com/paths/to/stream/720p.m3u8
 ```
 
 ### Audio Group
-We can set the audio group of the stream. The audio group should be given as a string. It provides a unique identifier for the audio group.
+We can set the audio group of the stream. The audio group should be given as a string. With the declaration of the audio group of the stream, only the audio streams of the same group can be pushable to the stream's audio list.
+
+```php
+$stream->setAudioGroup( 'dolby-atmos' );
+```
+
+```
+#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=642155,AVERAGE-BANDWIDTH=642155,CODECS="avc1.42001E,mp4a.40.2",PROGRAM-ID=1,FRAME-RATE=30,AUDIO="dolby-atmos"
+https://video.domain.com/paths/to/stream/720p.m3u8
+```
+
+### Subtitles Group
+We can set the subtitles group of the stream. It should be given as a string. With the declaration of the subtitles group of the stream, only the subtitles of the same group can be pushable to the stream's subtitles list.
+
+```php
+$stream->setSubtitleGroup( 'srt' );
+```
+
+```
+#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=642155,AVERAGE-BANDWIDTH=642155,CODECS="avc1.42001E,mp4a.40.2",PROGRAM-ID=1,FRAME-RATE=30,AUDIO="main",SUBTITLES="srt"
+https://video.domain.com/paths/to/stream/720p.m3u8
+```
+
+## Parse M3U8 Stream Tag Syntax
+Stream class supports parsing a valid #EXT-X-STREAM-INF tag syntax directly.
+
+```php
+$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=2122548,AVERAGE-BANDWIDTH=1542558,CODECS="avc1.42001E,mp4a.40.2",PROGRAM-ID=1,FRAME-RATE=30,AUDIO="main",SUBTITLES="srt"' );
+```
+
+However, please note that the text to be parsed must not contain any URL or URI lines. Stream will not parse these. You can set the URL or URI later using the relevant setter methods.
+
+Now we can access the properties of the stream and manipulate them with setter methods or get values from getter methods. 
+
+## Properties
+Stream class provides some getter methods to get values of the stream. Either we set properties manually or we parse them from a valid #EXT-X-STREAM-INF tag syntax directly, we always get the same values from the getter methods.
+
+### Get URI
+We can get the URI of the stream as an instance of the [`Uri`](Uri.md) class. This class provides some useful methods to let us interact with the URI's.
+
+```php
+echo $stream->uri;
+// 720p.m3u8
+```
+
+### Get Bandwidth & Average Bandwidth
+We can get the bandwidth and average bandwidth of the stream as an instance of the [`Bandwidth`](Bandwidth.md) class. This class provides some useful methods to let us interact with the bandwidth.
+
+```php
+echo $stream->bandwidth->toBytes();
+// [259.1, 'KB']
+
+echo $stream->averageBandwidth->toBits();
+// [1.54, 'Mb']
+```
+
+### Get Resolution
+We can get the resolution of the stream as an instance of the [`Resolution`](Resolution.md) class. This class provides some useful methods to let us interact with the resolution.
+
+```php
+echo $stream->resolution->height;
+// 720
+```
+
+### Get Codecs
+We can get the codecs of the stream as an instance of the [`CodecList`](CodecList.md) class. This class provides some useful methods to let us interact with the codecs.
+
+```php
+echo $stream->codecs;
+// avc1.42001E,mp4a.40.2
+```
+
+### Get Program ID
+We can get the program ID of the stream as an instance of the [`ProgramID`](ProgramID.md) class. This class provides some useful methods to let us interact with the program ID.
+
+```php
+echo $stream->programId;
+// 1
+```
+
+### Get Frame Rate
+We can get the frame rate of the stream as an instance of the [`FrameRate`](FrameRate.md) class. This class provides some useful methods to let us interact with the frame rate.
+
+```php
+echo $stream->frameRate;
+// 30
+```
+
+### Get Audio Group
+We can get the audio group of the stream as an instance of the [`GroupId`](GroupId.md) class. This class provides some useful methods to let us interact with the audio group.
+
+```php
+echo $stream->audioGroup->isEqual( $media->groupId );
+// true
+```
+
+### Get Subtitles Group
+We can get the subtitles group of the stream as an instance of the [`GroupId`](GroupId.md) class. This class provides some useful methods to let us interact with the subtitles group.
+
+```php
+echo $stream->subtitleGroup->isEqual( $media->groupId );
+// true
+```
