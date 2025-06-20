@@ -42,7 +42,7 @@ class StreamList implements M3U8Serializable, JsonSerializable
 	 *
 	 * @return Stream[] The list of streams.
 	 */
-	public function all(): array
+	public function toArray(): array
 	{
 		return $this->streams;
 	}
@@ -105,7 +105,7 @@ class StreamList implements M3U8Serializable, JsonSerializable
             "\n",
             array_map(
                 fn( $stream ) => $stream->toM3U8(),
-                $this->all()
+                $this->toArray()
             )
 		);
 	}
