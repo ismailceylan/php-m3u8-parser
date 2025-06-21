@@ -15,8 +15,9 @@ class CodecList implements JsonSerializable, M3U8Serializable
 	 *
 	 * @param string $codecString The raw string to parse.
 	 */
-	public function __construct( public array $codecs )
+	public function __construct( private array $codecs )
 	{
+		
 	}
 
 	/**
@@ -48,5 +49,15 @@ class CodecList implements JsonSerializable, M3U8Serializable
 	public function toM3U8(): string
 	{
 		return 'CODECS="' . $this->__toString() . '"';
+	}
+
+	/**
+	 * Converts the list of codecs to an array.
+	 *
+	 * @return array The list of codecs as an array.
+	 */
+	public function toArray(): array
+	{
+		return $this->codecs;
 	}
 }
