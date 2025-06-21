@@ -14,9 +14,12 @@ We can easily parse an existing M3U8 playlist:
 ```php
 use Iceylan\M3U8\MasterPlaylist;
 
-$master = ( new MasterPlaylist( MasterPlaylist::EagerLoadSegments ))
-	->loadRemote( "https://video.domain.com/paths/master-playlist.m3u8" );
-// MasterPlaylist instance
+$master =
+( 
+	new MasterPlaylist( 
+		MasterPlaylist::EagerLoadSegments 
+	)
+)->loadRemote( "https://video.domain.com/paths/master-playlist.m3u8" );
 ```
 
 ## Structure

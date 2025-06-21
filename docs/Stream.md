@@ -22,7 +22,7 @@ With this method, we will get an empty stream and then we can set its properties
 When we build a stream from scratch, we should provide the base URL. So that `Stream` class can resolve the relative path uri to the [segments playlist](SegmentPlaylist.md).
 
 ```php
-$stream->setBaseUrl( 'https://video.domain.com/paths/to/stream' );
+echo $stream->setBaseUrl( 'https://video.domain.com/paths/to/stream' );
 ```
 
 ```
@@ -34,7 +34,7 @@ https://video.domain.com/paths/to/stream
 Stream uri holds the relative path to the segments playlist.
 
 ```php
-$stream->setUri( '720p.m3u8' );
+echo $stream->setUri( '720p.m3u8' );
 ```
 
 ```
@@ -46,7 +46,7 @@ https://video.domain.com/paths/to/stream/720p.m3u8
 Streams are video streams. Therefore, we can provide the resolution of the video.
 
 ```php
-$stream->setResolution( width: 1280, height: '720' );
+echo $stream->setResolution( width: 1280, height: '720' );
 ```
 
 ```
@@ -60,7 +60,7 @@ The value of `width` and `height` can be a string or an integer. This library wi
 We can set the bandwidth of the stream. The value of the bandwidth is in bits per second.
 
 ```php
-$stream->setBandwidth( 642155 );
+echo $stream->setBandwidth( 642155 );
 ```
 
 ```
@@ -78,7 +78,7 @@ When a player needs to choose a stream, it considers the BANDWIDTH (maximum band
 If a stream has a BANDWIDTH of 2000000 (2 Mbps) and an AVERAGE-BANDWIDTH of 1500000 (1.5 Mbps), it means that the stream is expected to consume around 1.5 Mbps on average, while potentially peaking at 2 Mbps.
 
 ```php
-$stream->setAverageBandwidth( 642155 );
+echo $stream->setAverageBandwidth( 642155 );
 ```
 
 ```
@@ -90,7 +90,7 @@ https://video.domain.com/paths/to/stream/720p.m3u8
 We can set the codecs of the stream. The codecs should be given as strings. Multiple codecs can be provided.
 
 ```php
-$stream->setCodecs( 'avc1.42001E', 'mp4a.40.2' );
+echo $stream->setCodecs( 'avc1.42001E', 'mp4a.40.2' );
 ```
 
 ```
@@ -102,7 +102,7 @@ https://video.domain.com/paths/to/stream/720p.m3u8
 We can set the program ID of the stream. The program ID should be given as a string. It provides a unique identifier for the stream.
 
 ```php
-$stream->setProgramId( '1' );
+echo $stream->setProgramId( '1' );
 ```
 
 ```
@@ -114,7 +114,7 @@ https://video.domain.com/paths/to/stream/720p.m3u8
 We can set the frame rate of the stream. The frame rate should be given as a string, integer, or float. It provides the number of frames per second.
 
 ```php
-$stream->setFrameRate( '30' );
+echo $stream->setFrameRate( '30' );
 ```
 
 ```
@@ -126,7 +126,7 @@ https://video.domain.com/paths/to/stream/720p.m3u8
 We can set the audio group of the stream. The audio group should be given as a string. With the declaration of the audio group of the stream, only the audio streams of the same group can be pushable to the stream's audio list.
 
 ```php
-$stream->setAudioGroup( 'dolby-atmos' );
+echo $stream->setAudioGroup( 'dolby-atmos' );
 ```
 
 ```
@@ -138,7 +138,7 @@ https://video.domain.com/paths/to/stream/720p.m3u8
 We can set the subtitles group of the stream. It should be given as a string. With the declaration of the subtitles group of the stream, only the subtitles of the same group can be pushable to the stream's subtitles list.
 
 ```php
-$stream->setSubtitleGroup( 'srt' );
+echo $stream->setSubtitleGroup( 'srt' );
 ```
 
 ```
@@ -191,8 +191,11 @@ echo $stream->resolution->height;
 We can get the codecs of the stream as an instance of the [`CodecList`](CodecList.md) class. This class provides some useful methods to let us interact with the codecs.
 
 ```php
-echo $stream->codecs;
-// avc1.42001E,mp4a.40.2
+echo json_encode( $stream->codecs );
+```
+
+```json
+[ "avc1.42001E", "mp4a.40.2" ]
 ```
 
 ### Get Program ID
@@ -215,7 +218,7 @@ echo $stream->frameRate;
 We can get the audio group of the stream as an instance of the [`GroupId`](GroupId.md) class. This class provides some useful methods to let us interact with the audio group.
 
 ```php
-echo $stream->audioGroup->isEqual( $media->groupId );
+echo $stream->audioGroup->isEqual( $audio->groupId );
 // true
 ```
 
@@ -223,6 +226,60 @@ echo $stream->audioGroup->isEqual( $media->groupId );
 We can get the subtitles group of the stream as an instance of the [`GroupId`](GroupId.md) class. This class provides some useful methods to let us interact with the subtitles group.
 
 ```php
-echo $stream->subtitleGroup->isEqual( $media->groupId );
+echo $stream->subtitleGroup->isEqual( $subtitle->groupId );
 // true
 ```
+
+### Get Audios
+We can get the audios of the stream as an instance of the [`ObjectSet`](ObjectSet.md) class. This class behaves just like an audio set and guarantees that an [audio](Media.md) object appears only once in the list, ensuring that there are no duplicates.
+
+```php
+echo $stream->audios;
+```
+
+```
+#EXT-X-MEDIA:TYPE=Audio,NAME="English",LANGUAGE="en",GROUP-ID="main"
+#EXT-X-MEDIA:TYPE=Audio,NAME="Turkish",LANGUAGE="tr",GROUP-ID="main"
+```
+
+### Get Subtitles
+This is the same as the audios, but for subtitles. We can get the subtitles of the stream as an instance of the [`ObjectSet`](ObjectSet.md) class.
+
+```php
+var_dump( $stream->subtitles->toArray());
+```
+
+```php
+[
+	'#EXT-X-MEDIA:TYPE=SUBTITLES,NAME="English",LANGUAGE="en",GROUP-ID="main"',
+	'#EXT-X-MEDIA:TYPE=SUBTITLES,NAME="Turkish",LANGUAGE="tr",GROUP-ID="main"',
+]
+```
+
+### Get Segments
+The stream class is designed to represent a video variant or live video streaming. Each variant consists of segments. These segments must be in a separate playlist file in m3u format. This playlist is called a segments playlist, and in this libray, we represent it with the [`SegmentsPlaylist`](SegmentsPlaylist.md) class.
+
+We can access this playlist via streams.
+
+```php
+echo $stream->segments;
+// null
+```
+
+The default value of this property is null. This is because segments playlists are not loaded by default unless you specifically demand it.
+
+There are two ways to demand loading of the segments playlist.
+
+* Using the [`withSegments`](#loading-segments) method on the stream
+* Activating the eager loading of segments with the modifier when instantiating the stream class
+* Activating the eager loading of segments in the [`MasterPlaylist`](MasterPlaylist.md#masterplaylisteagerloadsegments) class by modifiers
+
+Let's see how we can declare in advance that the segments playlist must also be downloaded when instantiating the Stream class. You can follow the relevant links to learn about other methods.
+
+```php
+$stream = new Stream(
+	options: MasterPlaylist::EagerLoadSegments
+);
+```
+
+The use of labeled parameters is recommended because the stream class has some technical dependencies that it obtains from the argument tunnel in order to work in multiple formats and scenarios. By specifying which argument you are assigning a value to, you do not have to satisfy these dependencies one by one.
