@@ -4,11 +4,12 @@ namespace Iceylan\M3U8;
 
 use JsonSerializable;
 use SplObjectStorage;
+use Iceylan\M3U8\Contracts\M3U8Serializable;
 
 /**
  * Represents a set of objects.
  */
-class ObjectSet implements JsonSerializable
+class ObjectSet implements JsonSerializable, M3U8Serializable
 {
 	/**
 	 * The list of audio streams.
@@ -92,5 +93,36 @@ class ObjectSet implements JsonSerializable
 	public function toArray(): array
 	{
 		return [ ...$this->items ];
+	}
+
+	/**
+	 * Converts the list of objects to a string in the M3U8 format.
+	 *
+	 * The M3U8 format is a string of newline-separated lines, where each line
+	 * is the M3U8 representation of an object in the list.
+	 *
+	 * @return string The list of objects in the M3U8 format.
+	 */
+	public function toM3U8(): string
+	{
+		return implode(
+			separator: "\n",
+			array: array_map(
+				callback: fn( $media ) => $media->toM3U8(),
+				array: $this->toArray()
+			)
+		);
+	}
+
+	/**
+	 * Converts the list of objects to a string in the M3U8 format.
+	 *
+	 * This method returns the result of calling the toM3U8 method.
+	 *
+	 * @return string The list of objects in the M3U8 format.
+	 */
+	public function __toString(): string
+	{
+		return $this->toM3U8();
 	}
 }
