@@ -81,6 +81,16 @@ class ObjectSet implements JsonSerializable
 	 */
 	public function jsonSerialize(): array
 	{
+		return $this->toArray();
+	}
+
+	/**
+	 * Returns the list of audio streams as an array.
+	 *
+	 * @return array The list of audio streams.
+	 */
+	public function toArray(): array
+	{
 		return [ ...$this->items ];
 	}
 }
