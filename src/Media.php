@@ -239,6 +239,19 @@ class Media implements M3U8Serializable, JsonSerializable
 	}
 
 	/**
+	 * Converts the media object to a string.
+	 *
+	 * This method returns the M3U8 representation of the media
+	 * by calling the toM3U8 method.
+	 *
+	 * @return string The media in M3U8 format.
+	 */
+	public function __toString()
+	{
+		return $this->toM3U8();
+	}
+
+	/**
 	 * Returns the content of the media as a M3U8 string.
 	 *
 	 * @return string
