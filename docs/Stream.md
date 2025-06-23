@@ -275,7 +275,7 @@ The default value of this property is null. This is because segments playlists a
 
 There are three ways to demand loading of the segments playlist.
 
-* Using the [`withSegments`](#loading-segments) method on the stream
+* Using the [`withSegments`](#loading-segments-playlist) method on the stream
 * Activating the eager loading of segments with the modifier when instantiating the stream class
 * Activating the eager loading of segments in the [`MasterPlaylist`](MasterPlaylist.md#masterplaylisteagerloadsegments) class by modifiers
 
@@ -299,4 +299,28 @@ new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,FOO="bar"' );
 ```php
 echo $stream->nonStandardProps[ 'FOO' ];
 // bar
+```
+
+## Loading Segments Playlist
+On the stream class, we have a method called `withSegments` that allows us to load the segments playlist when we want to and if it is not loaded yet.
+
+```php
+$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=2122548,AVERAGE-BANDWIDTH=1542558,CODECS="avc1.42001E,mp4a.40.2",PROGRAM-ID=1,FRAME-RATE=30,AUDIO="main",SUBTITLES="srt"' );
+
+$stream
+	->setBaseUrl( 'https://video.domain.com/paths/to/stream' )
+	->setUri( '720p.m3u8' )
+	->withSegments();
+```
+
+After loading the remote segments playlist, we can get the segments playlist as an instance of the [`SegmentsPlaylist`](SegmentsPlaylist.md) class.
+
+```php
+$secondSegment = $$stream->segments->get( 2 );
+
+echo $secondSegment->uri;
+// 720p/2.ts
+
+echo $secondSegment->getResolvedUrl();
+// https://video.domain.com/paths/to/stream/720p/2.ts
 ```
