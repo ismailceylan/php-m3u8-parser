@@ -413,6 +413,16 @@ class SegmentsPlaylist extends Playlist implements JsonSerializable, M3U8Seriali
 	}
 
 	/**
+	 * Converts the segments playlist to a string in the M3U8 format.
+	 *
+	 * @return string The segments playlist in the M3U8 format.
+	 */
+	public function __toString()
+	{
+		return $this->toM3U8();
+	}
+
+	/**
 	 * Converts the segments playlist to an array for JSON serialization.
 	 *
 	 * The resulting array contains the segments of the playlist.
