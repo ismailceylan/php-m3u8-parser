@@ -246,18 +246,23 @@ echo $stream->audios;
 This is the same as the audios, but for subtitles. We can get the subtitles of the stream as an instance of the [`ObjectSet`](ObjectSet.md) class.
 
 ```php
-var_dump( $stream->subtitles->toArray());
+$subtitles = $stream->subtitles->toArray();
+$flatten = fn( Media $subtitle ) => $subtitle->toM3U8();
+
+var_dump( 
+    array_map( $flatten, $subtitles )
+);
 ```
 
 ```php
 [
-	'#EXT-X-MEDIA:TYPE=SUBTITLES,NAME="English",LANGUAGE="en",GROUP-ID="main"',
-	'#EXT-X-MEDIA:TYPE=SUBTITLES,NAME="Turkish",LANGUAGE="tr",GROUP-ID="main"',
+    '#EXT-X-MEDIA:TYPE=SUBTITLES,NAME="English",LANGUAGE="en",GROUP-ID="main"',
+    '#EXT-X-MEDIA:TYPE=SUBTITLES,NAME="Turkish",LANGUAGE="tr",GROUP-ID="main"',
 ]
 ```
 
 ### Get Segments
-The stream class is designed to represent a video variant or live video streaming. Each variant consists of segments. These segments must be in a separate playlist file in m3u format. This playlist is called a segments playlist, and in this libray, we represent it with the [`SegmentsPlaylist`](SegmentsPlaylist.md) class.
+The stream class is designed to represent a video variant or live video streaming. Each variant refers to a set of segments. These segments must be in a separate playlist file in m3u format. This playlist is called a segments playlist, and in this libray, we represent it with the [`SegmentsPlaylist`](SegmentsPlaylist.md) class.
 
 We can access this playlist via streams.
 
@@ -268,7 +273,7 @@ echo $stream->segments;
 
 The default value of this property is null. This is because segments playlists are not loaded by default unless you specifically demand it.
 
-There are two ways to demand loading of the segments playlist.
+There are three ways to demand loading of the segments playlist.
 
 * Using the [`withSegments`](#loading-segments) method on the stream
 * Activating the eager loading of segments with the modifier when instantiating the stream class
@@ -278,8 +283,20 @@ Let's see how we can declare in advance that the segments playlist must also be 
 
 ```php
 $stream = new Stream(
-	options: MasterPlaylist::EagerLoadSegments
+    options: MasterPlaylist::EagerLoadSegments
 );
 ```
 
-The use of labeled parameters is recommended because the stream class has some technical dependencies that it obtains from the argument tunnel in order to work in multiple formats and scenarios. By specifying which argument you are assigning a value to, you do not have to satisfy these dependencies one by one.
+The use of labeled parameters is recommended because the stream class has some optional technical dependencies that it obtains from the argument tunnel in order to work in multiple formats and scenarios. By specifying which argument you are assigning a value to, you do not have to satisfy these dependencies one by one in order.
+
+### Get Nonstandard Attributes
+There are some standard attributes in the m3u format like BITRATE or RESOLUTION. We physically store most of them in the library and stream class. However, there may also be attributes that are not standard on the #EXT-X-STREAM-INF tag. We store these types of attributes as key=>value pairs on a special property.
+
+```php
+new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,FOO="bar"' );
+```
+
+```php
+echo $stream->nonStandardProps[ 'FOO' ];
+// bar
+```
