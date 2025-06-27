@@ -5,9 +5,9 @@ In this library, we represent streams with the `Stream` class.
 
 There are 3 ways to interact with a stream:
 
-* Instantiating the class directly and building streams scratch
-* Instantiating the class with a M3U8 stream tag syntax and parsing it
-* parsing a master playlist through the `MasterPlaylist` class
+* Instantiating the class directly and [building streams scratch](#building-a-stream-from-scratch)
+* Instantiating the class with a M3U8 stream tag syntax and [parsing](#parse-m3u8-stream-tag-syntax) it
+* parsing a master playlist through the [`MasterPlaylist`](MasterPlaylist.md) class
 
 ## Building a Stream From Scratch
 This library supports building a stream from scratch and cast them into M3U8 or JSON representation.
@@ -293,10 +293,8 @@ The use of labeled parameters is recommended because the stream class has some o
 There are some standard attributes in the m3u format like BITRATE or RESOLUTION. We physically store most of them in the library and stream class. However, there may also be attributes that are not standard on the #EXT-X-STREAM-INF tag. We store these types of attributes as key=>value pairs on a special property.
 
 ```php
-new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,FOO="bar"' );
-```
+$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,FOO="bar"' );
 
-```php
 echo $stream->nonStandardProps[ 'FOO' ];
 // bar
 ```
@@ -305,10 +303,10 @@ echo $stream->nonStandardProps[ 'FOO' ];
 On the stream class, we have a method called `withSegments` that allows us to load the segments playlist when we want to and if it is not loaded yet.
 
 ```php
-$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=2122548,AVERAGE-BANDWIDTH=1542558,CODECS="avc1.42001E,mp4a.40.2",PROGRAM-ID=1,FRAME-RATE=30,AUDIO="main",SUBTITLES="srt"' );
+$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=2122548,FRAME-RATE=30' );
 
 $stream
-	->setBaseUrl( 'https://video.domain.com/paths/to/stream' )
+	->setBaseUrl( 'https://video.domain.com/paths/to/stream/segments/' )
 	->setUri( '720p.m3u8' )
 	->withSegments();
 ```
@@ -316,11 +314,29 @@ $stream
 After loading the remote segments playlist, we can get the segments playlist as an instance of the [`SegmentsPlaylist`](SegmentsPlaylist.md) class.
 
 ```php
-$secondSegment = $$stream->segments->get( 2 );
+$secondSegment = $stream->segments->get( 2 );
 
 echo $secondSegment->uri;
-// 720p/2.ts
+// 720p/seg-002.ts
 
 echo $secondSegment->getResolvedUrl();
-// https://video.domain.com/paths/to/stream/720p/2.ts
+// https://video.domain.com/paths/to/stream/segments/720p/seg-002.ts
 ```
+
+## Pushing Medias
+Videos and video streams can have many different types of media. For example, audio, subtitles, and other camera angles. All of these are represented in the m3u format with the #EXT-X-MEDIA tag. In this library, they are represented by the [Media](Media.md) class.
+
+We add these media to the stream using the push method.
+
+```php
+$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,FRAME-RATE=30&AUDIO="audio-group-1"' );
+
+$stream
+	->setSubtitleGroup( 'subtitles' )
+	->push( new Media( '#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-group-1",NAME="English",LANGUAGE="en",DEFAULT=YES,AUTOSELECT=YES,URI="audio-en.m3u8"' ))
+	->push( new Media( '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subtitles",NAME="Spanish",LANGUAGE="es",AUTOSELECT=NO,URI="es.srt"' ));
+```
+
+The push method returns the stream object, which is useful for chaining.
+
+The media object is stored in the stream's [audio list](#get-audios) and [subtitle list](#get-subtitles) if the media type is audio or subtitle and the group ids are the same with the stream's audio group id and subtitle group id. If the group ids are not the same, the given media will be ignored.
