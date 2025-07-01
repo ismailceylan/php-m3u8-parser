@@ -1,37 +1,133 @@
-# Stream
-Streams represent videos. They provide general information about the video, such as its resolution, codecs, and frame rate, as well as the URL or URI for the playlist containing the video segments.
+# `Stream` Class
+Streams Represents a variant stream in an M3U8 (HLS) master playlist, encapsulating its attributes, associated media, and segment playlist. Provides general information about the video, such as its resolution, codecs, and frame rate, as well as the URL or URI for the playlist containing the video segments.
 
 In this library, we represent streams with the `Stream` class.
 
 There are 3 ways to interact with a stream:
 
-* Instantiating the class directly and [building streams scratch](#building-a-stream-from-scratch)
-* Instantiating the class with a M3U8 stream tag syntax and [parsing](#parse-m3u8-stream-tag-syntax) it
-* parsing a master playlist through the [`MasterPlaylist`](MasterPlaylist.md) class
-
-## Building a Stream From Scratch
+#### Instantiating the class directly and building streams scratch
 This library supports building a stream from scratch and cast them into M3U8 or JSON representation.
 
 ```php
 $stream = new Stream;
 ```
 
-With this method, we will get an empty stream and then we can set its properties manually. This is how we can build a stream from scratch.
+With this method, we will get an empty stream and then we can set its properties by using setter methods. This is how we can build a stream from scratch.
 
-### Base URL
-When we build a stream from scratch, we should provide the base URL. So that `Stream` class can resolve the relative path uri to the [segments playlist](SegmentPlaylist.md).
+#### Instantiating the class with a M3U8 stream tag syntax and parsing it
+Stream class supports parsing a valid `#EXT-X-STREAM-INF` tag syntax directly.
 
 ```php
-echo $stream->setBaseUrl( 'https://video.domain.com/paths/to/stream' );
+$stream = new Stream(
+	'#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=2122548,AVERAGE-BANDWIDTH=1542558,CODECS="avc1.42001E,mp4a.40.2",PROGRAM-ID=1,FRAME-RATE=30,AUDIO="main",SUBTITLES="srt"'
+);
+```
+
+However, please note that the text to be parsed must not contain any URL or URI lines. Stream will not parse these. You can set the URL or URI later using the relevant setter methods.
+
+Now we can access the properties of the stream and manipulate them with setter methods or get values from getter methods. 
+
+#### Parsing a master playlist through the MasterPlaylist class
+The [`MasterPlaylist`](MasterPlaylist.md) class can be used to parse a master playlist and get the streams from it.
+
+---
+
+## Namespace
+
+```php
+namespace Iceylan\M3U8;
+```
+
+---
+
+## Implements
+
+- `Iceylan\M3U8\Contracts\M3U8Serializable`
+- `JsonSerializable`
+
+---
+
+## Constructor
+
+```php
+public function __construct(
+    string $rawStreamSyntax = '',
+    ?Closure $syncMedias = null,
+    ?Url $url = null,
+    ?Hooks $hooks = null,
+    int $options = 0
+)
+```
+
+- **`$rawStreamSyntax`**: Raw `#EXT-X-STREAM-INF` line (optional).
+- **`$syncMedias`**: Callback for syncing strategy media groups (optional).
+- **`$url`**: Base URL for resolving relative URIs (optional).
+- **`$hooks`**: Hook system for custom event handling (optional).
+- **`$options`**: Bitmask for controlling behavior (see [`MasterPlaylist`](MasterPlaylist.md) constants).
+
+**Example:**
+
+```php
+$raw = '#EXT-X-STREAM-INF:BANDWIDTH=1280000,RESOLUTION=1280x720,AUDIO="audio-group"';
+$url = new Iceylan\Urlify\Url('https://example.com/master.m3u8');
+```
+
+```php
+$stream = new Stream( $raw, null, $url );
+```
+
+To avoid unnecessary nullification for the arguments, you can use labeled arguments.
+
+**Example:**
+
+```php
+$stream = new Stream(
+	rawStreamSyntax: $raw,
+	url: $url
+);
+```
+
+---
+
+## Methods
+
+### `parseRawSyntax(string $rawStreamSyntax): self`
+
+Parses a raw `#EXT-X-STREAM-INF` line and sets properties accordingly.
+
+**Example:**
+
+```php
+$stream->parseRawSyntax('#EXT-X-STREAM-INF:BANDWIDTH=2560000,RESOLUTION=1920x1080');
+```
+
+**Edge Case:**  
+Unknown attributes are stored in `$nonStandardProps`.
+
+---
+
+### `setBaseUrl(string|Url $url): self`
+When we build a stream from scratch, we should provide the base URL. So that `Stream` class can resolve the relative path uri to the [segments playlist](SegmentPlaylist.md).
+
+Sets the base URL for resolving relative URIs.
+
+**Example:**
+
+```php
+echo $stream->setBaseUrl( 'https://video.domain.com/paths/to/streams' );
 ```
 
 ```
 #EXT-X-STREAM-INF:
-https://video.domain.com/paths/to/stream
+https://video.domain.com/paths/to/streams
 ```
 
-### Stream URI
-Stream uri holds the relative path to the segments playlist.
+---
+
+### `setUri(string $value): self`
+Sets the URI of the stream's segments playlist. If the `EagerLoadSegments` option is set, loads segments immediately.
+
+**Example:**
 
 ```php
 echo $stream->setUri( '720p.m3u8' );
@@ -39,25 +135,36 @@ echo $stream->setUri( '720p.m3u8' );
 
 ```
 #EXT-X-STREAM-INF:
-https://video.domain.com/paths/to/stream/720p.m3u8
+https://video.domain.com/paths/to/streams/720p.m3u8
 ```
 
-### Resolution
+**Edge Case:**  
+If the URI is invalid or empty, segment loading may fail.
+
+---
+
+### `setResolution(string|int $width, string|int $height): self`
 Streams are video streams. Therefore, we can provide the resolution of the video.
+
+**Example:**
 
 ```php
 echo $stream->setResolution( width: 1280, height: '720' );
 ```
+
+The value of `width` and `height` can be a string or an integer. This library will convert it to an integer if it is a string.
 
 ```
 #EXT-X-STREAM-INF:RESOLUTION=1280x720
 https://video.domain.com/paths/to/stream/720p.m3u8
 ```
 
-The value of `width` and `height` can be a string or an integer. This library will convert it to an integer if it is a string.
+---
 
-### Bandwidth
-We can set the bandwidth of the stream. The value of the bandwidth is in bits per second.
+### `setBandwidth(int $bandwidth): self`
+We can set the peak bandwidth of the stream. The value is in bits per second.
+
+**Example:**
 
 ```php
 echo $stream->setBandwidth( 642155 );
@@ -68,7 +175,9 @@ echo $stream->setBandwidth( 642155 );
 https://video.domain.com/paths/to/stream/720p.m3u8
 ```
 
-### Average Bandwidth
+---
+
+### `setAverageBandwidth(int $averageBandwidth): self`
 We can set the average bandwidth of the stream. The value of the average bandwidth is in bits per second.
 
 The AVERAGE-BANDWIDTH parameter in #EXT-X-STREAM-INF tags within an M3U8 playlist helps players determine which stream to use, especially when dealing with multiple streams with varying quality (e.g., different resolutions or bitrates).
@@ -76,6 +185,8 @@ The AVERAGE-BANDWIDTH parameter in #EXT-X-STREAM-INF tags within an M3U8 playlis
 When a player needs to choose a stream, it considers the BANDWIDTH (maximum bandwidth) and the AVERAGE-BANDWIDTH values to make its decision.
 
 If a stream has a BANDWIDTH of 2000000 (2 Mbps) and an AVERAGE-BANDWIDTH of 1500000 (1.5 Mbps), it means that the stream is expected to consume around 1.5 Mbps on average, while potentially peaking at 2 Mbps.
+
+**Example:**
 
 ```php
 echo $stream->setAverageBandwidth( 642155 );
@@ -86,8 +197,12 @@ echo $stream->setAverageBandwidth( 642155 );
 https://video.domain.com/paths/to/stream/720p.m3u8
 ```
 
-### Codecs
+---
+
+### `setCodecs(...$codecs): self`
 We can set the codecs of the stream. The codecs should be given as strings. Multiple codecs can be provided.
+
+**Example:**
 
 ```php
 echo $stream->setCodecs( 'avc1.42001E', 'mp4a.40.2' );
@@ -98,8 +213,12 @@ echo $stream->setCodecs( 'avc1.42001E', 'mp4a.40.2' );
 https://video.domain.com/paths/to/stream/720p.m3u8
 ```
 
-### Program ID
+---
+
+### `setProgramID(string $programID): self`
 We can set the program ID of the stream. The program ID should be given as a string. It provides a unique identifier for the stream.
+
+**Example:**
 
 ```php
 echo $stream->setProgramId( '1' );
@@ -110,8 +229,12 @@ echo $stream->setProgramId( '1' );
 https://video.domain.com/paths/to/stream/720p.m3u8
 ```
 
-### Frame Rate
+---
+
+### `setFrameRate(int|float|string $frameRate): self`
 We can set the frame rate of the stream. The frame rate should be given as a string, integer, or float. It provides the number of frames per second.
+
+**Example:**
 
 ```php
 echo $stream->setFrameRate( '30' );
@@ -122,8 +245,12 @@ echo $stream->setFrameRate( '30' );
 https://video.domain.com/paths/to/stream/720p.m3u8
 ```
 
-### Audio Group
+---
+
+### `setAudioGroup(string $audioGroup): self`
 We can set the audio group of the stream. The audio group should be given as a string. With the declaration of the audio group of the stream, only the audio streams of the same group can be pushable to the stream's audio list.
+
+**Example:**
 
 ```php
 echo $stream->setAudioGroup( 'dolby-atmos' );
@@ -134,8 +261,12 @@ echo $stream->setAudioGroup( 'dolby-atmos' );
 https://video.domain.com/paths/to/stream/720p.m3u8
 ```
 
-### Subtitles Group
+---
+
+### `setSubtitleGroup(string $subtitleGroup): self`
 We can set the subtitles group of the stream. It should be given as a string. With the declaration of the subtitles group of the stream, only the subtitles of the same group can be pushable to the stream's subtitles list.
+
+**Example:**
 
 ```php
 echo $stream->setSubtitleGroup( 'srt' );
@@ -146,16 +277,135 @@ echo $stream->setSubtitleGroup( 'srt' );
 https://video.domain.com/paths/to/stream/720p.m3u8
 ```
 
-## Parse M3U8 Stream Tag Syntax
-Stream class supports parsing a valid #EXT-X-STREAM-INF tag syntax directly.
+---
+
+### `push(Media $media): self`
+
+Adds a Media object to the stream if it matches the audio or subtitle group.
+
+**Example:**
 
 ```php
-$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=2122548,AVERAGE-BANDWIDTH=1542558,CODECS="avc1.42001E,mp4a.40.2",PROGRAM-ID=1,FRAME-RATE=30,AUDIO="main",SUBTITLES="srt"' );
+$audioMedia = new Media('audio', ...);
+$stream->push($audioMedia);
 ```
 
-However, please note that the text to be parsed must not contain any URL or URI lines. Stream will not parse these. You can set the URL or URI later using the relevant setter methods.
+**Edge Case:**  
+If the media's group does not match, it is ignored.
 
-Now we can access the properties of the stream and manipulate them with setter methods or get values from getter methods. 
+---
+
+### `withSegments(): self`
+On the stream class, we have a method called `withSegments` that allows us to load the segments playlist when we want to and if it is not loaded yet.
+
+**Example:**
+
+```php
+$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=2122548,FRAME-RATE=30' );
+
+$stream
+	->setBaseUrl( 'https://video.domain.com/paths/to/stream/segments/' )
+	->setUri( '720p.m3u8' )
+	->withSegments();
+```
+
+After loading the remote segments playlist, we can get the segments playlist as an instance of the [`SegmentsPlaylist`](SegmentsPlaylist.md) class.
+
+**Example:**
+
+```php
+$secondSegment = $stream->segments->get( 2 );
+
+echo $secondSegment->uri;
+// 720p/seg-002.ts
+
+echo $secondSegment->getResolvedUrl();
+// https://video.domain.com/paths/to/stream/segments/720p/seg-002.ts
+```
+
+**Edge Case:**  
+If the URI or base URL is missing, segments will not be loaded.
+
+---
+
+### `push(Media $media): self`
+Videos and video streams can have many different types of media. For example, audios, subtitles and other camera angles. All of these are represented in the m3u format with the #EXT-X-MEDIA tag. In this library, they are represented by the [Media](Media.md) class.
+
+We add these media to the stream using the push method.
+
+**Example:**
+
+```php
+$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,FRAME-RATE=30&AUDIO="audio-group-1"' );
+
+$stream
+	->setSubtitleGroup( 'subtitles' )
+	->push( new Media( '#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-group-1",NAME="English",LANGUAGE="en",DEFAULT=YES,AUTOSELECT=YES,URI="audio-en.m3u8"' ))
+	->push( new Media( '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subtitles",NAME="Spanish",LANGUAGE="es",AUTOSELECT=NO,URI="es.srt"' ));
+```
+
+The push method returns the stream object, which is useful for chaining.
+
+The media object is stored in the stream's [audio list](#get-audios) and [subtitle list](#get-subtitles) if the media type is audio or subtitle and the group ids are the same with the stream's audio group id and subtitle group id. If the group ids are not the same, the given media will be ignored.
+
+---
+
+### `hook(string $event, callable $listener, int $priority = 0): self`
+
+Registers a hook for custom event handling.
+
+**Example:**
+
+```php
+$stream->hook('format.toM3U8.segment-uri', function($url, $uri) {
+    return [$url . '/' . $uri];
+});
+```
+
+---
+
+### `toM3U8(): string`
+
+Returns the stream as an M3U8 playlist entry.
+
+**Example:**
+
+```php
+echo $stream->toM3U8();
+```
+
+---
+
+### `__toString(): string`
+
+Alias for `toM3U8()`.
+
+**Example:**
+
+```php
+echo $stream;
+```
+
+```
+#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=642155,AVERAGE-BANDWIDTH=642155,CODECS="avc1.42001E,mp4a.40.2",PROGRAM-ID=1,FRAME-RATE=30,AUDIO="main",SUBTITLES="srt"
+https://video.domain.com/paths/to/stream/720p.m3u8
+```
+
+---
+
+### `jsonSerialize(): array`
+Returns an array suitable for `json_encode()`, with options to hide empty/null fields.
+
+**Example:**
+
+```php
+echo json_encode($stream, JSON_PRETTY_PRINT);
+```
+
+**Edge Case:**  
+Serialization respects options such as hiding empty arrays, nulls, or non-standard props.
+
+---
 
 ## Properties
 Stream class provides some getter methods to get values of the stream. Either we set properties manually or we parse them from a valid #EXT-X-STREAM-INF tag syntax directly, we always get the same values from the getter methods.
@@ -299,44 +549,49 @@ echo $stream->nonStandardProps[ 'FOO' ];
 // bar
 ```
 
-## Loading Segments Playlist
-On the stream class, we have a method called `withSegments` that allows us to load the segments playlist when we want to and if it is not loaded yet.
+---
+
+## Usage Example
 
 ```php
-$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=2122548,FRAME-RATE=30' );
+$stream = new Stream();
+$stream->setBandwidth(1500000)
+       ->setResolution(1280, 720)
+       ->setCodecs('avc1.4d401f', 'mp4a.40.2')
+       ->setUri('video/720p.m3u8')
+       ->setAudioGroup('audio-group');
 
-$stream
-	->setBaseUrl( 'https://video.domain.com/paths/to/stream/segments/' )
-	->setUri( '720p.m3u8' )
-	->withSegments();
+$audio = new Media('audio', ...);
+$stream->push($audio);
+
+echo $stream->toM3U8();
+echo json_encode($stream, JSON_PRETTY_PRINT);
 ```
 
-After loading the remote segments playlist, we can get the segments playlist as an instance of the [`SegmentsPlaylist`](SegmentsPlaylist.md) class.
+---
 
-```php
-$secondSegment = $stream->segments->get( 2 );
+## Edge Cases & Best Practices
 
-echo $secondSegment->uri;
-// 720p/seg-002.ts
+- **Missing URI:**  
+  If you forget to set the URI, segment loading and M3U8 output may be incomplete.
+- **Unknown Attributes:**  
+  Any unknown attributes in the EXT-X-STREAM-INF tag are preserved in `$nonStandardProps`.
+- **Media Group Mismatch:**  
+  Only media with matching group IDs are added to `$audios` or `$subtitles`.
+- **Serialization Options:**  
+  Use the `$options` bitmask to control JSON output (e.g., hide nulls, empty arrays).
+- **Hooks:**  
+  Hooks allow you to customize URI formatting and resolution for advanced use cases.
 
-echo $secondSegment->getResolvedUrl();
-// https://video.domain.com/paths/to/stream/segments/720p/seg-002.ts
-```
+---
 
-## Pushing Medias
-Videos and video streams can have many different types of media. For example, audio, subtitles, and other camera angles. All of these are represented in the m3u format with the #EXT-X-MEDIA tag. In this library, they are represented by the [Media](Media.md) class.
+## See Also
 
-We add these media to the stream using the push method.
+- [HLS Specification](https://datatracker.ietf.org/doc/html/rfc8216)
+- `MasterPlaylist` for option constants and playlist management
+- Media, `ObjectSet`, `SegmentsPlaylist` for related classes
 
-```php
-$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,FRAME-RATE=30&AUDIO="audio-group-1"' );
+---
 
-$stream
-	->setSubtitleGroup( 'subtitles' )
-	->push( new Media( '#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-group-1",NAME="English",LANGUAGE="en",DEFAULT=YES,AUTOSELECT=YES,URI="audio-en.m3u8"' ))
-	->push( new Media( '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subtitles",NAME="Spanish",LANGUAGE="es",AUTOSELECT=NO,URI="es.srt"' ));
-```
-
-The push method returns the stream object, which is useful for chaining.
-
-The media object is stored in the stream's [audio list](#get-audios) and [subtitle list](#get-subtitles) if the media type is audio or subtitle and the group ids are the same with the stream's audio group id and subtitle group id. If the group ids are not the same, the given media will be ignored.
+**Note:**  
+This class is designed for extensibility and robust parsing of HLS master playlists. Always validate input and handle exceptions for production use.
