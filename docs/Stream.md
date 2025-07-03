@@ -23,7 +23,7 @@ $stream = new Stream(
 );
 ```
 
-However, please note that the text to be parsed must not contain any URL or URI lines. Stream will not parse these. You can set the URL or URI later using the relevant setter methods.
+However, please note that the text to be parsed must not contain any URL or URI lines. Stream class won't parse these. You can set the URL or URI later using the relevant setter methods.
 
 Now we can access the properties of the stream and manipulate them with setter methods or get values from getter methods. 
 
@@ -60,7 +60,7 @@ public function __construct(
 ```
 
 - **`$rawStreamSyntax`**: Raw `#EXT-X-STREAM-INF` line (optional).
-- **`$syncMedias`**: Callback for syncing strategy media groups (optional).
+- **`$syncMedias`**: Callback for syncing media groups strategy (optional).
 - **`$url`**: Base URL for resolving relative URIs (optional).
 - **`$hooks`**: Hook system for custom event handling (optional).
 - **`$options`**: Bitmask for controlling behavior (see [`MasterPlaylist`](MasterPlaylist.md) constants).
@@ -82,8 +82,8 @@ To avoid unnecessary nullification for the arguments, you can use labeled argume
 
 ```php
 $stream = new Stream(
-	rawStreamSyntax: $raw,
-	url: $url
+    rawStreamSyntax: $raw,
+    url: $url
 );
 ```
 
@@ -102,7 +102,7 @@ $stream->parseRawSyntax('#EXT-X-STREAM-INF:BANDWIDTH=2560000,RESOLUTION=1920x108
 ```
 
 **Edge Case:**  
-Unknown attributes are stored in `$nonStandardProps`.
+Unknown attributes are stored in [`$nonStandardProps`](#get-nonstandard-attributes).
 
 ---
 
@@ -304,9 +304,9 @@ On the stream class, we have a method called `withSegments` that allows us to lo
 $stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=2122548,FRAME-RATE=30' );
 
 $stream
-	->setBaseUrl( 'https://video.domain.com/paths/to/stream/segments/' )
-	->setUri( '720p.m3u8' )
-	->withSegments();
+    ->setBaseUrl( 'https://video.domain.com/paths/to/stream/segments/' )
+    ->setUri( '720p.m3u8' )
+    ->withSegments();
 ```
 
 After loading the remote segments playlist, we can get the segments playlist as an instance of the [`SegmentsPlaylist`](SegmentsPlaylist.md) class.
@@ -339,9 +339,9 @@ We add these media to the stream using the push method.
 $stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,FRAME-RATE=30&AUDIO="audio-group-1"' );
 
 $stream
-	->setSubtitleGroup( 'subtitles' )
-	->push( new Media( '#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-group-1",NAME="English",LANGUAGE="en",DEFAULT=YES,AUTOSELECT=YES,URI="audio-en.m3u8"' ))
-	->push( new Media( '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subtitles",NAME="Spanish",LANGUAGE="es",AUTOSELECT=NO,URI="es.srt"' ));
+    ->setSubtitleGroup( 'subtitles' )
+    ->push( new Media( '#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-group-1",NAME="English",LANGUAGE="en",DEFAULT=YES,AUTOSELECT=YES,URI="audio-en.m3u8"' ))
+    ->push( new Media( '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subtitles",NAME="Spanish",LANGUAGE="es",AUTOSELECT=NO,URI="es.srt"' ));
 ```
 
 The push method returns the stream object, which is useful for chaining.
@@ -551,21 +551,109 @@ echo $stream->nonStandardProps[ 'FOO' ];
 
 ---
 
+### Customizing URI Resolution and Formatting
+The `Stream` class supports two important hook events that allow you to externally control how URIs are resolved and formatted. These hooks provide advanced flexibility for integrating with custom CDN logic, URL signing, or other URI transformation needs.
+
+---
+
+#### 1. `resolve.segment-playlist-uri`
+This hook is triggered when the stream needs to resolve the full URL for its segments playlist (for example, when loading segments or serializing to JSON). By registering a handler for this hook, you can control how the base URL and the relative URI are combined or transformed.
+
+**Use Case:**  
+Combine the base [URL](https://github.com/ismailceylan/urlify) and the URI, or inject custom logic for CDN, authentication, or rewriting.
+
+**Example:**
+
+```php
+use Iceylan\Eventor\Event;
+use Iceylan\Urlify\Url;
+
+$stream->hook( 'resolve.segment-playlist-uri', function( Event $event )
+{
+	// extract the base URL and URI
+	// uri is string
+	// url is instance of Urlify Url
+	list( $url, $uri ) = $event->getPayload();
+
+    // Custom logic to combine or rewrite the URL and URI
+    return $url->path->append( $uri );
+});
+```
+
+**How it works:**  
+- The hook receives the base URL and the URI as payload.
+- It should return a string or an instance of the `Url` class representing the resolved URL.
+- This resolved URL will be used for loading segments and in JSON serialization.
+
+---
+
+#### 2. `format.toM3U8.segment-uri`
+This hook is triggered when converting the stream to its M3U8 string representation (via `toM3U8()` or `__toString()`). It allows you to control how the URI appears in the generated playlist text, which is useful for formatting, obfuscation, or localization.
+
+**Use Case:**  
+Format or rewrite the URI as it appears in the M3U8 output.
+
+**Example:**
+
+```php
+use Iceylan\Urlify\Path;
+
+$stream->hook( 'format.toM3U8.segment-uri', function( $event )
+{
+	list( $url, $uri ) = $event->getPayload();
+
+    // Custom formatting for the playlist output
+    return ( new Path( $uri ))->getSegment( -1 );
+});
+```
+
+**How it works:**  
+- The hook receives the base URL and the URI as arguments.
+- It should return a string representing the formatted URI.
+- This formatted URI will be used in the output of `toM3U8()` and `__toString()`.
+
+---
+
+#### Best Practices
+
+- **Return a string:** Your hook callback must return a string representing the resolved or formatted URI.
+- **Chainable:** You can register multiple hooks for the same event; they will be called in order of priority.
+- **Separation of concerns:** Use `resolve.segment-playlist-uri` for backend URL logic, and `format.toM3U8.segment-uri` for presentation-layer formatting.
+
+---
+
+#### Example: Using Both Hooks
+
+```php
+$stream
+    ->setBaseUrl( 'https://cdn.example.com/streams' )
+    ->setUri( '720p.m3u8' )
+    ->hook( 'resolve.segment-playlist-uri', fn( $event ) => $url->path->append( $uri ))
+    ->hook( 'format.toM3U8.segment-uri', fn( $event ) => base64_encode( $uri ));
+
+echo $stream->toM3U8();
+// #EXT-X-STREAM-INF:...
+// NzIwcC5tM3U4 // (base64 of '720p.m3u8')
+```
+
+These hooks make the `Stream` class highly extensible for real-world streaming scenarios, letting you adapt URI handling to your infrastructure and security requirements.
+
+---
+
 ## Usage Example
 
 ```php
 $stream = new Stream();
-$stream->setBandwidth(1500000)
-       ->setResolution(1280, 720)
-       ->setCodecs('avc1.4d401f', 'mp4a.40.2')
-       ->setUri('video/720p.m3u8')
-       ->setAudioGroup('audio-group');
+$stream->setBandwidth( 1500000 )
+       ->setResolution( 1280, 720 )
+       ->setCodecs( 'avc1.4d401f', 'mp4a.40.2' )
+       ->setUri( 'video/720p.m3u8' )
+       ->setAudioGroup( 'audio-group' );
 
-$audio = new Media('audio', ...);
-$stream->push($audio);
+$stream->push( new Media );
 
 echo $stream->toM3U8();
-echo json_encode($stream, JSON_PRETTY_PRINT);
+echo json_encode( $stream, JSON_PRETTY_PRINT );
 ```
 
 ---
@@ -575,7 +663,7 @@ echo json_encode($stream, JSON_PRETTY_PRINT);
 - **Missing URI:**  
   If you forget to set the URI, segment loading and M3U8 output may be incomplete.
 - **Unknown Attributes:**  
-  Any unknown attributes in the EXT-X-STREAM-INF tag are preserved in `$nonStandardProps`.
+  Any unknown attributes in the EXT-X-STREAM-INF tag are preserved in [`$nonStandardProps`](#get-nonstandard-attributes).
 - **Media Group Mismatch:**  
   Only media with matching group IDs are added to `$audios` or `$subtitles`.
 - **Serialization Options:**  
@@ -588,8 +676,8 @@ echo json_encode($stream, JSON_PRETTY_PRINT);
 ## See Also
 
 - [HLS Specification](https://datatracker.ietf.org/doc/html/rfc8216)
-- `MasterPlaylist` for option constants and playlist management
-- Media, `ObjectSet`, `SegmentsPlaylist` for related classes
+- [`MasterPlaylist`](MasterPlaylist.md) for option constants and playlist management
+- Media, [`ObjectSet`](ObjectSet.md), [`SegmentsPlaylist`](SegmentsPlaylist.md) for related classes
 
 ---
 
