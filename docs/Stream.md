@@ -47,6 +47,24 @@ namespace Iceylan\M3U8;
 
 ---
 
+## Usage Example
+
+```php
+$stream = new Stream();
+$stream->setBandwidth( 1500000 )
+       ->setResolution( 1280, 720 )
+       ->setCodecs( 'avc1.4d401f', 'mp4a.40.2' )
+       ->setUri( 'video/720p.m3u8' )
+       ->setAudioGroup( 'audio-group' );
+
+$stream->push( new Media );
+
+echo $stream;
+echo json_encode( $stream, JSON_PRETTY_PRINT );
+```
+
+---
+
 ## Constructor
 
 ```php
@@ -86,6 +104,153 @@ $stream = new Stream(
     url: $url
 );
 ```
+
+---
+
+## Customizing URI Resolution and Formatting
+The `Stream` class supports two important hook events that allow you to externally control how URIs are resolved and formatted. These hooks provide advanced flexibility for integrating with custom CDN logic, URL signing, or other URI transformation needs.
+
+---
+
+### 1. `resolve.segment-playlist-uri`
+This hook is triggered when the stream needs to resolve the full URL for its segments playlist (for example, when loading segments or serializing to JSON). By registering a handler for this hook, you can control how the base URL and the relative URI are combined or transformed.
+
+**Use Case:**  
+Combine the base [URL](https://github.com/ismailceylan/urlify) and the URI, or inject custom logic for CDN, authentication, or rewriting.
+
+**Example:**
+
+```php
+use Iceylan\Eventor\Event;
+use Iceylan\Urlify\Url;
+
+$stream->hook( 'resolve.segment-playlist-uri', function( Event $event )
+{
+	// extract the base URL and URI
+	// uri is string
+	// url is instance of Urlify Url
+	list( $url, $uri ) = $event->getPayload();
+
+    // Custom logic to combine or rewrite the URL and URI
+    return $url->path->append( $uri );
+});
+```
+
+**How it works:**  
+- The hook receives the base URL and the URI as payload.
+- It should return a string or an instance of the `Url` class representing the resolved URL.
+- This resolved URL will be used for loading segments and in JSON serialization.
+
+---
+
+### 2. `format.toM3U8.segment-uri`
+This hook is triggered when converting the stream to its M3U8 string representation (via `toM3U8()` or `__toString()`). It allows you to control how the URI appears in the generated playlist text, which is useful for formatting, obfuscation, or localization.
+
+**Use Case:**  
+Format or rewrite the URI as it appears in the M3U8 output.
+
+**Example:**
+
+```php
+use Iceylan\Urlify\Path;
+
+$stream->hook( 'format.toM3U8.segment-uri', function( $event )
+{
+	list( $url, $uri ) = $event->getPayload();
+
+    // Custom formatting for the playlist output
+    return ( new Path( $uri ))->getSegment( -1 );
+});
+```
+
+**How it works:**  
+- The hook receives the base URL and the URI as arguments.
+- It should return a string representing the formatted URI.
+- This formatted URI will be used in the output of `toM3U8()` and `__toString()`.
+
+---
+
+### Best Practices
+
+- **Return a string:** Your hook callback must return a string representing the resolved or formatted URI.
+- **Chainable:** You can register multiple hooks for the same event; they will be called in order of priority.
+- **Separation of concerns:** Use `resolve.segment-playlist-uri` for backend URL logic, and `format.toM3U8.segment-uri` for presentation-layer formatting.
+
+---
+
+### Example: Using Both Hooks
+
+```php
+$stream
+    ->setBaseUrl( 'https://cdn.example.com/streams' )
+    ->setUri( '720p.m3u8' )
+    ->hook( 'resolve.segment-playlist-uri', fn( $event ) => $url->path->append( $uri ))
+    ->hook( 'format.toM3U8.segment-uri', fn( $event ) => base64_encode( $uri ));
+
+echo $stream->toM3U8();
+// #EXT-X-STREAM-INF:...
+// NzIwcC5tM3U4 // (base64 of '720p.m3u8')
+```
+
+These hooks make the `Stream` class highly extensible for real-world streaming scenarios, letting you adapt URI handling to your infrastructure and security requirements.
+
+---
+
+## M3U8 Serialization
+
+The `Stream` class can be serialized to the standard M3U8 playlist format using the [`toM3U8()`](#tom3u8-string) method or by casting the object to a string. This produces a valid `#EXT-X-STREAM-INF` entry, including all relevant attributes (such as bandwidth, resolution, codecs, etc.) and the URI for the segment playlist.
+
+**Example:**
+
+```php
+echo $stream->toM3U8();
+```
+
+or
+
+Output:
+
+```
+#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=642155,AVERAGE-BANDWIDTH=642155,CODECS="avc1.42001E,mp4a.40.2",PROGRAM-ID=1,FRAME-RATE=30,AUDIO="main",SUBTITLES="srt"
+https://video.domain.com/paths/to/stream/720p.m3u8
+```
+
+You can customize how the URI appears in the output by registering a [`format.toM3U8.segment-uri`](#2-formattom3u8segment-uri) hook.
+
+---
+
+## JSON Serialization
+The Stream class implements the JsonSerializable interface, allowing you to serialize it to JSON using json_encode(). The resulting JSON object includes all the stream's properties, such as URI, bandwidth, codecs, audio/subtitle groups, and any non-standard attributes.
+
+Example:
+
+```php
+echo json_encode( $stream, JSON_PRETTY_PRINT );
+```
+
+Output:
+
+```json
+{
+  "uri": "720p.m3u8",
+  "url": "https://video.domain.com/paths/to/stream/720p.m3u8",
+  "audios": [ ... ],
+  "subtitles": [ ... ],
+  "codecs": [ "avc1.42001E", "mp4a.40.2" ],
+  "bandwidth": 642155,
+  "averageBandwidth": 642155,
+  "resolution": "1280x720",
+  "programID": 1,
+  "frameRate": 30,
+  "segments": null,
+  "nonStandardProps": {},
+  "audioGroup": "main",
+  "subtitleGroup": "srt"
+}
+```
+
+**Edge Case:**
+Serialization options can be controlled via the `$options` bitmask, allowing you to hide null values, empty arrays, or non-standard properties as needed.
 
 ---
 
@@ -539,123 +704,6 @@ $stream = new Stream(
 
 The use of labeled parameters is recommended because the stream class has some optional technical dependencies that it obtains from the argument tunnel in order to work in multiple formats and scenarios. By specifying which argument you are assigning a value to, you do not have to satisfy these dependencies one by one in order.
 
-### Get Nonstandard Attributes
-There are some standard attributes in the m3u format like BITRATE or RESOLUTION. We physically store most of them in the library and stream class. However, there may also be attributes that are not standard on the #EXT-X-STREAM-INF tag. We store these types of attributes as key=>value pairs on a special property.
-
-```php
-$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,FOO="bar"' );
-
-echo $stream->nonStandardProps[ 'FOO' ];
-// bar
-```
-
----
-
-### Customizing URI Resolution and Formatting
-The `Stream` class supports two important hook events that allow you to externally control how URIs are resolved and formatted. These hooks provide advanced flexibility for integrating with custom CDN logic, URL signing, or other URI transformation needs.
-
----
-
-#### 1. `resolve.segment-playlist-uri`
-This hook is triggered when the stream needs to resolve the full URL for its segments playlist (for example, when loading segments or serializing to JSON). By registering a handler for this hook, you can control how the base URL and the relative URI are combined or transformed.
-
-**Use Case:**  
-Combine the base [URL](https://github.com/ismailceylan/urlify) and the URI, or inject custom logic for CDN, authentication, or rewriting.
-
-**Example:**
-
-```php
-use Iceylan\Eventor\Event;
-use Iceylan\Urlify\Url;
-
-$stream->hook( 'resolve.segment-playlist-uri', function( Event $event )
-{
-	// extract the base URL and URI
-	// uri is string
-	// url is instance of Urlify Url
-	list( $url, $uri ) = $event->getPayload();
-
-    // Custom logic to combine or rewrite the URL and URI
-    return $url->path->append( $uri );
-});
-```
-
-**How it works:**  
-- The hook receives the base URL and the URI as payload.
-- It should return a string or an instance of the `Url` class representing the resolved URL.
-- This resolved URL will be used for loading segments and in JSON serialization.
-
----
-
-#### 2. `format.toM3U8.segment-uri`
-This hook is triggered when converting the stream to its M3U8 string representation (via `toM3U8()` or `__toString()`). It allows you to control how the URI appears in the generated playlist text, which is useful for formatting, obfuscation, or localization.
-
-**Use Case:**  
-Format or rewrite the URI as it appears in the M3U8 output.
-
-**Example:**
-
-```php
-use Iceylan\Urlify\Path;
-
-$stream->hook( 'format.toM3U8.segment-uri', function( $event )
-{
-	list( $url, $uri ) = $event->getPayload();
-
-    // Custom formatting for the playlist output
-    return ( new Path( $uri ))->getSegment( -1 );
-});
-```
-
-**How it works:**  
-- The hook receives the base URL and the URI as arguments.
-- It should return a string representing the formatted URI.
-- This formatted URI will be used in the output of `toM3U8()` and `__toString()`.
-
----
-
-#### Best Practices
-
-- **Return a string:** Your hook callback must return a string representing the resolved or formatted URI.
-- **Chainable:** You can register multiple hooks for the same event; they will be called in order of priority.
-- **Separation of concerns:** Use `resolve.segment-playlist-uri` for backend URL logic, and `format.toM3U8.segment-uri` for presentation-layer formatting.
-
----
-
-#### Example: Using Both Hooks
-
-```php
-$stream
-    ->setBaseUrl( 'https://cdn.example.com/streams' )
-    ->setUri( '720p.m3u8' )
-    ->hook( 'resolve.segment-playlist-uri', fn( $event ) => $url->path->append( $uri ))
-    ->hook( 'format.toM3U8.segment-uri', fn( $event ) => base64_encode( $uri ));
-
-echo $stream->toM3U8();
-// #EXT-X-STREAM-INF:...
-// NzIwcC5tM3U4 // (base64 of '720p.m3u8')
-```
-
-These hooks make the `Stream` class highly extensible for real-world streaming scenarios, letting you adapt URI handling to your infrastructure and security requirements.
-
----
-
-## Usage Example
-
-```php
-$stream = new Stream();
-$stream->setBandwidth( 1500000 )
-       ->setResolution( 1280, 720 )
-       ->setCodecs( 'avc1.4d401f', 'mp4a.40.2' )
-       ->setUri( 'video/720p.m3u8' )
-       ->setAudioGroup( 'audio-group' );
-
-$stream->push( new Media );
-
-echo $stream->toM3U8();
-echo json_encode( $stream, JSON_PRETTY_PRINT );
-```
-
 ---
 
 ## Edge Cases & Best Practices
@@ -670,6 +718,53 @@ echo json_encode( $stream, JSON_PRETTY_PRINT );
   Use the `$options` bitmask to control JSON output (e.g., hide nulls, empty arrays).
 - **Hooks:**  
   Hooks allow you to customize URI formatting and resolution for advanced use cases.
+
+---
+
+### Accesing Nonstandard Attributes
+There are some standard attributes in the m3u format like BITRATE or RESOLUTION. We physically store most of them in the library and stream class. However, there may also be attributes that are not standard on the #EXT-X-STREAM-INF tag. We store these types of attributes as key=>value pairs on a special property.
+
+```php
+$stream = new Stream( '#EXT-X-STREAM-INF:RESOLUTION=1280x720,FOO="bar"' );
+
+echo $stream->nonStandardProps[ 'FOO' ];
+// bar
+```
+
+---
+
+### Options Bitmasking
+The `$options` parameter in the `Stream` class constructor allows you to control advanced behaviors using bitmask flags. These options are defined as constants in the [`MasterPlaylist`](MasterPlaylist.md) class and can be combined using the bitwise OR operator (`|`). Bitmasking enables you to enable or disable multiple features at once.
+
+#### Available Option Flags
+Common option constants include:
+
+- **`MasterPlaylist::EagerLoadSegments`**  
+  Automatically loads the segments playlist when the URI is set.
+- **`MasterPlaylist::HideNullValuesInJson`**  
+  Omits properties with `null` values from the JSON output.
+- **`MasterPlaylist::HideEmptyArraysInJson`**  
+  Omits properties that are empty arrays (e.g., no audios or subtitles) from the JSON output.
+- **`MasterPlaylist::HideNonStandardPropsInJson`**  
+  Omits non-standard attributes from the JSON output.
+- **`MasterPlaylist::HideGroupsInJson`**  
+  Omits audio and subtitle group properties from the JSON output.
+
+Refer to the [`MasterPlaylist`](MasterPlaylist.md) documentation for the full list of available flags.
+
+---
+
+#### How to Use
+You can combine multiple options using the bitwise OR operator (`|`):
+
+```php
+$options = MasterPlaylist::EagerLoadSegments | MasterPlaylist::HideNullValuesInJson;
+$stream = new Stream(
+    rawStreamSyntax: $raw,
+    url: $url,
+    options: $options
+);
+```
 
 ---
 
