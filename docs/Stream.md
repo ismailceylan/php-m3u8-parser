@@ -126,13 +126,13 @@ use Iceylan\Urlify\Url;
 
 $stream->hook( 'resolve.segment-playlist-uri', function( Event $event )
 {
-	// extract the base URL and URI
-	// uri is string
-	// url is instance of Urlify Url
-	list( $url, $uri ) = $event->getPayload();
+  // extract the base URL and URI
+  // uri is string
+  // url is instance of Urlify Url
+  list( $url, $uri ) = $event->getPayload();
 
-    // Custom logic to combine or rewrite the URL and URI
-    return $url->path->append( $uri );
+  // Custom logic to combine or rewrite the URL and URI
+  return $url->path->append( $uri );
 });
 ```
 
@@ -156,10 +156,10 @@ use Iceylan\Urlify\Path;
 
 $stream->hook( 'format.toM3U8.segment-uri', function( $event )
 {
-	list( $url, $uri ) = $event->getPayload();
+  list( $url, $uri ) = $event->getPayload();
 
-    // Custom formatting for the playlist output
-    return ( new Path( $uri ))->getSegment( -1 );
+  // Custom formatting for the playlist output
+  return ( new Path( $uri ))->getSegment( -1 );
 });
 ```
 
@@ -257,7 +257,6 @@ Serialization options can be controlled via the `$options` bitmask, allowing you
 ## Methods
 
 ### `parseRawSyntax(string $rawStreamSyntax): self`
-
 Parses a raw `#EXT-X-STREAM-INF` line and sets properties accordingly.
 
 **Example:**
@@ -267,7 +266,7 @@ $stream->parseRawSyntax('#EXT-X-STREAM-INF:BANDWIDTH=2560000,RESOLUTION=1920x108
 ```
 
 **Edge Case:**  
-Unknown attributes are stored in [`$nonStandardProps`](#get-nonstandard-attributes).
+Unknown attributes are stored in [`$nonStandardProps`](#accesing-nonstandard-attributes).
 
 ---
 
@@ -445,7 +444,6 @@ https://video.domain.com/paths/to/stream/720p.m3u8
 ---
 
 ### `push(Media $media): self`
-
 Adds a Media object to the stream if it matches the audio or subtitle group.
 
 **Example:**
@@ -516,21 +514,19 @@ The media object is stored in the stream's [audio list](#get-audios) and [subtit
 ---
 
 ### `hook(string $event, callable $listener, int $priority = 0): self`
-
 Registers a hook for custom event handling.
 
 **Example:**
 
 ```php
-$stream->hook('format.toM3U8.segment-uri', function($url, $uri) {
-    return [$url . '/' . $uri];
-});
+$stream->hook('format.toM3U8.segment-uri', fn( $event ) =>
+    $event->getPayload()[ 0 ] . '/' . $event->getPayload()[ 1 ]
+);
 ```
 
 ---
 
 ### `toM3U8(): string`
-
 Returns the stream as an M3U8 playlist entry.
 
 **Example:**
@@ -542,7 +538,6 @@ echo $stream->toM3U8();
 ---
 
 ### `__toString(): string`
-
 Alias for `toM3U8()`.
 
 **Example:**
@@ -707,11 +702,10 @@ The use of labeled parameters is recommended because the stream class has some o
 ---
 
 ## Edge Cases & Best Practices
-
 - **Missing URI:**  
   If you forget to set the URI, segment loading and M3U8 output may be incomplete.
 - **Unknown Attributes:**  
-  Any unknown attributes in the EXT-X-STREAM-INF tag are preserved in [`$nonStandardProps`](#get-nonstandard-attributes).
+  Any unknown attributes in the EXT-X-STREAM-INF tag are preserved in [`$nonStandardProps`](#accesing-nonstandard-attributes).
 - **Media Group Mismatch:**  
   Only media with matching group IDs are added to `$audios` or `$subtitles`.
 - **Serialization Options:**  
@@ -769,7 +763,6 @@ $stream = new Stream(
 ---
 
 ## See Also
-
 - [HLS Specification](https://datatracker.ietf.org/doc/html/rfc8216)
 - [`MasterPlaylist`](MasterPlaylist.md) for option constants and playlist management
 - Media, [`ObjectSet`](ObjectSet.md), [`SegmentsPlaylist`](SegmentsPlaylist.md) for related classes
