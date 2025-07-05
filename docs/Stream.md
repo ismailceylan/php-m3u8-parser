@@ -32,21 +32,6 @@ The [`MasterPlaylist`](MasterPlaylist.md) class can be used to parse a master pl
 
 ---
 
-## Namespace
-
-```php
-namespace Iceylan\M3U8;
-```
-
----
-
-## Implements
-
-- `Iceylan\M3U8\Contracts\M3U8Serializable`
-- `JsonSerializable`
-
----
-
 ## Usage Example
 
 ```php
@@ -66,7 +51,9 @@ echo json_encode( $stream, JSON_PRETTY_PRINT );
 ---
 
 ## Constructor
+Creates a new instance of the `Stream` class.
 
+**Signature:**
 ```php
 public function __construct(
     string $rawStreamSyntax = '',

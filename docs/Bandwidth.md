@@ -6,7 +6,6 @@ This class makes it easy to work with bandwidth values, convert them to differen
 ---
 
 ## Properties
-
 ### `int $bps`
 The bandwidth value in bits per second (bps). This is the core value stored by the class and is set during construction.
 
@@ -15,6 +14,7 @@ The bandwidth value in bits per second (bps). This is the core value stored by t
 ## Constructor
 Creates a new `Bandwidth` instance.
 
+**Signature:**
 ```php
 public function __construct(
   int|string $bitsPerSecond,
@@ -24,7 +24,7 @@ public function __construct(
 
 **Parameters:**
 - `$bitsPerSecond` (`int|string`): The bandwidth value in bits per second. Can be provided as an integer or a numeric string.
-- `$key` (`string`): An optional M3U8 key or label for the bandwidth value.
+- `$key` (`string`): M3U8 key or label for the bandwidth value.
 
 **Example:**
 ```php
@@ -120,9 +120,9 @@ If we put the `Bandwidth` instance into an array or object and serialize it to J
 
 **Example:**
 ```php
-$serialized = json_encode(
+json_encode(
 [
-	'bw' => new Bandwidth( 1540000 )
+  'bw' => new Bandwidth( 1540000 )
 ]);
 ```
 
@@ -140,7 +140,6 @@ As part of this library, the `Bandwidth` instance can be serialized into M3U8 at
 
 **Example:**
 ```php
-$bw = new Bandwidth( 1540000, 'BW' );
-echo $bw->toM3U8();
+echo ( new Bandwidth( 1540000, 'BW' ))->toM3U8();
 // "BANDWIDTH=1540000"
 ```
