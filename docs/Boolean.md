@@ -41,8 +41,10 @@ If an unrecognized value is provided (e.g., `'maybe'`), `$value` will be `null`.
 
 ---
 
-## Methods
-### `toM3U8(): string`
+## Serialization
+This class can be serialized into JSON and M3U8 attributes.
+
+### M3U8 Serialization
 Converts the boolean value to a string in the M3U8 attribute format.
 
 **Returns:**
@@ -59,7 +61,7 @@ Always provide a valid key for correct M3U8 serialization.
 
 ---
 
-### `jsonSerialize(): mixed`
+### JSON Serialization
 Serializes the boolean value for JSON encoding.
 
 **Returns:**
@@ -67,9 +69,17 @@ Serializes the boolean value for JSON encoding.
 
 **Example:**
 ```php
-$bool = new Boolean( 'no', 'DEFAULT' );
-echo json_encode([ 'default' => $bool ]);
-// Output: {"default":false}
+json_encode(
+[
+	'default' => new Boolean( 'no' )
+]);
+```
+
+**Output:**
+```json
+{
+	"default": false
+}
 ```
 
 **Note:**
